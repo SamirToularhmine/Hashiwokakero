@@ -1,3 +1,4 @@
+#use "puzzle.ml";;
 (* Types initiaux *)
 type coordinate = Coordinate of (int * int);;
 type importance = Importance of int;;
@@ -88,3 +89,7 @@ let _ = fstcoord (fst(reducepuzzle ((fun x y->if (fst x) >~ (fst y) then x else 
 (* nombre de (coordinate*importance) dans un puzzle  *)
 let lengthpzl (Puzzle l)=List.length l;;
 lengthpzl puzzle2;;
+
+open Puzzle;;
+reduction;;
+
