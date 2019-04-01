@@ -1,4 +1,5 @@
 #use "puzzle.ml";;
+#use "solution.ml";;
 (* Types initiaux *)
 type coordinate = Coordinate of (int * int);;
 type importance = Importance of int;;

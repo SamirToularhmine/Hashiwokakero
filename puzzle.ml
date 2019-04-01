@@ -1,6 +1,7 @@
+#use "coordinate.ml";;
+open Coordinate;;
 module type PUZZLE =
   sig
-    type coordinate
     type importance
     type puzzle
 
@@ -16,5 +17,5 @@ module Puzzle : PUZZLE =
            function | Puzzle plist -> List.fold_right f plist
   end
 (* let ok = Puzzle.Puzzle [(Puzzle.Coordinate (0,0),Puzzle.Importance 4)];;*)
-                                          
-                                           
+    open Coordinate;;                                      
+    let x = Coordinate (1,1);;
