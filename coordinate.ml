@@ -2,6 +2,7 @@ module type COORDINATE =
   sig
     type coordinate
 
+    val create : (int * int) -> coordinate
     val fstcoord : coordinate -> int   
     val sndcoord : coordinate -> int
     val (>~) : coordinate -> coordinate -> bool
@@ -12,8 +13,9 @@ module type COORDINATE =
 
 module Coordinate : COORDINATE =
   struct
-    type coordinate = Coordinate of int * int
+    type coordinate = Coordinate of (int * int)
 
+    let create = fun (x,y) -> Coordinate (x,y)
     let fstcoord (Coordinate (x,y))=x
     let sndcoord (Coordinate (x,y))=y
 
@@ -30,6 +32,4 @@ module Coordinate : COORDINATE =
     let maxfstcoord c1 c2 = filtercoord (>~) c1 c2
     let maxsndcoord c1 c2 = filtercoord (>~~) c1 c2
   end;;
-open Coordinate;;
 
-  (Coordinate (1,1))>~((2,2):coordinate);;

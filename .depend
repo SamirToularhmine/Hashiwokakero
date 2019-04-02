@@ -1,0 +1,8 @@
+coordinate.cmo :
+coordinate.cmx :
+main.cmo : puzzle.cmo coordinate.cmo
+main.cmx : puzzle.cmx coordinate.cmx
+puzzle.cmo : coordinate.cmo
+puzzle.cmx : coordinate.cmx
+solution.cmo : puzzle.cmo
+solution.cmx : puzzle.cmx

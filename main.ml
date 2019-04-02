@@ -1,21 +1,34 @@
-#use "puzzle.ml";;
-#use "solution.ml";;
+
 (* Types initiaux *)
-type coordinate = Coordinate of (int * int);;
+(* type coordinate = Coordinate of (int * int);;
 type importance = Importance of int;;
 type puzzle = Puzzle of (coordinate * importance) list;;
 
 (* Types Finaux *)
 type bridge = { isVertical : bool; isDoubled : bool};;
 type cell = Nothing | Island of importance | Bridge of bridge;;
-type solution = cell list list;;
+type solution = cell list list;; *)
 
 (* Puzzles *)
 (* Coordinate(colonne,ligne) *)
-let puzzle2 =
-  Puzzle
+open Coordinate;;
+open Puzzle;;
+let x = Coordinate.create (3,2);;
+print_int (Coordinate.sndcoord x);;
+print_string "\n";;
+
+(* A réfléchir pour voir si il y a besoin de méthodes create *)
+(*let puzzleTest = Puzzle.create
+                   (
+                     [
+                       (Coordinate.create (3,2), Importance 4)
+                     ]
+                   );;*)
+
+(*let puzzle2 =
+  Puzzle.create
     [
-    (Coordinate (0, 0), Importance 4);
+    (Coordinate(0, 0), Importance 4);
     (Coordinate (0, 3), Importance 4);
     (Coordinate (0, 6), Importance 3);
     (Coordinate (2, 1), Importance 1);
@@ -28,9 +41,9 @@ let puzzle2 =
     (Coordinate (6, 2), Importance 1);
     (Coordinate (6, 4), Importance 3);
     (Coordinate (6, 6), Importance 4)
-    ];;
+    ];;*)
 
-let rec getVoisins =
+(*let rec getVoisins =
   fun c -> fun p ->
            match p with
            | Puzzle q ->
@@ -53,8 +66,9 @@ let rec getBords = fun p -> fun n ->
           then (Coordinate (x,y), Importance z)::getBords (Puzzle t) n
           else getBords (Puzzle t) n
        | _ -> []
-     end;;
-(* fonctions pour travailler sur des coordinate s *)
+     end;;*)
+(* fonctions pour travailler sur des coordinate s 
+
 let fstcoord (Coordinate (x,y))=x;;
 let sndcoord (Coordinate (x,y))=y;;
 
@@ -64,7 +78,7 @@ let (>~~) c1 c2 = (sndcoord c1) > (sndcoord c2);;
 (* petit test *)
 let _ = Coordinate (0,3) >~~ Coordinate (1,2);;
 (* ça marche bien *)
-
+ 
 
 
 (* on applique une fonction une paire de coordinnate... ah mais enfait elle sert à rien sert fonction *)
@@ -89,8 +103,7 @@ let _ = fstcoord (fst(reducepuzzle ((fun x y->if (fst x) >~ (fst y) then x else 
 
 (* nombre de (coordinate*importance) dans un puzzle  *)
 let lengthpzl (Puzzle l)=List.length l;;
-lengthpzl puzzle2;;
+lengthpzl puzzle2;;*)
 
-open Puzzle;;
-reduction;;
+print_string "C'est cool la compilation !";;
 
