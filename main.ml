@@ -11,19 +11,19 @@ type solution = cell list list;; *)
 
 (* Puzzles *)
 (* Coordinate(colonne,ligne) *)
-open Coordinate;;
 open Puzzle;;
+open Coordinate;;
 let x = Coordinate.create (3,2);;
 print_int (Coordinate.sndcoord x);;
 print_string "\n";;
 
 (* A réfléchir pour voir si il y a besoin de méthodes create *)
-(*let puzzleTest = Puzzle.create
+let puzzleTest = Puzzle.create
                    (
                      [
-                       (Coordinate.create (3,2), Importance 4)
+                       (Coordinate.create (3,2), Puzzle.Importance 4)
                      ]
-                   );;*)
+                   );;
 
 (*let puzzle2 =
   Puzzle.create
