@@ -21,9 +21,23 @@ print_string "\n";;
 let puzzleTest = Puzzle.create
                    (
                      [
-                       (Coordinate.create (3,2), Puzzle.Importance 4)
+                       (Coordinate.create (0,0), Puzzle.getImportance 4);
+                       (Coordinate.create (0,3), Puzzle.getImportance 4);
+                       (Coordinate.create (0,6), Puzzle.getImportance 3);
+                       (Coordinate.create (2,1), Puzzle.getImportance 1);
+                       (Coordinate.create (2,3), Puzzle.getImportance 4);
+                       (Coordinate.create (2,5), Puzzle.getImportance 2);
+                       (Coordinate.create (3,0), Puzzle.getImportance 4);
+                       (Coordinate.create (3,6), Puzzle.getImportance 5);
+                       (Coordinate.create (5,0), Puzzle.getImportance 2);
+                       (Coordinate.create (5,5), Puzzle.getImportance 1);
+                       (Coordinate.create (6,2), Puzzle.getImportance 1);
+                       (Coordinate.create (6,4), Puzzle.getImportance 3);
+                       (Coordinate.create (6,6), Puzzle.getImportance 4)
                      ]
                    );;
+
+print_string (Puzzle.toString puzzleTest);;
 
 (*let puzzle2 =
   Puzzle.create
@@ -104,6 +118,3 @@ let _ = fstcoord (fst(reducepuzzle ((fun x y->if (fst x) >~ (fst y) then x else 
 (* nombre de (coordinate*importance) dans un puzzle  *)
 let lengthpzl (Puzzle l)=List.length l;;
 lengthpzl puzzle2;;*)
-
-print_string "C'est cool la compilation !";;
-

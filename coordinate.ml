@@ -9,6 +9,7 @@ module type COORDINATE =
     val (>~~) : coordinate -> coordinate -> bool
 
     val filtercoord : (coordinate -> coordinate -> bool) -> coordinate -> coordinate -> coordinate
+    val toString : coordinate -> string
   end
 
 module Coordinate : COORDINATE =
@@ -31,5 +32,8 @@ module Coordinate : COORDINATE =
     (* max selon colonne et max selon ligne *)
     let maxfstcoord c1 c2 = filtercoord (>~) c1 c2
     let maxsndcoord c1 c2 = filtercoord (>~~) c1 c2
+    let toString = fun c ->
+      match c with
+      | Coordinate c -> "(" ^ (string_of_int (fst c)) ^ "," ^ (string_of_int (snd c)) ^ ")"
   end;;
 
