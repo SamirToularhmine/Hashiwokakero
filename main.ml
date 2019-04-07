@@ -37,7 +37,9 @@ let puzzleTest = Puzzle.create
                      ]
                    );;
 
-print_string (Puzzle.toString puzzleTest);;
+
+let y = Puzzle.list_of_puzzle puzzleTest;;
+
 
 (*let puzzle2 =
   Puzzle.create
