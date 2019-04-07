@@ -8,4 +8,4 @@ puzzle.cmx : coordinate.cmx puzzle.cmi
 puzzle.cmi : coordinate.cmi
 solution.cmo : puzzle.cmi solution.cmi
 solution.cmx : puzzle.cmx solution.cmi
-solution.cmi : puzzle.cmi coordinate.cmi
+solution.cmi : puzzle.cmi
