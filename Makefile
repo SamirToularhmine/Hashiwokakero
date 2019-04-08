@@ -66,7 +66,7 @@
 #
 # The Caml sources (including camlyacc and camllex source files)
 
-SOURCES = coordinate.ml solution.ml puzzle.ml main.ml
+SOURCES = coordinate.ml puzzle.ml solution.ml main.ml
 
 # The executable file to generate
 
