@@ -22,5 +22,5 @@ let rec toString = fun p ->
 
 
 (* let ok = Puzzle.Puzzle [(Puzzle.Coordinate (0,0),Puzzle.Importance 4)];;*)
-(*open Coordinate*);;                                      
-(*let x = Coordinate (1,1)*);;
+(*open Coordinate*)                                      
+(*let x = Coordinate (1,1)*)
