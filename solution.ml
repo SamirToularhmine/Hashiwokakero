@@ -6,9 +6,9 @@ type cell = Nothing | Island of Puzzle.importance | Bridge of bridge
 type solution = cell list list
 
 let string_of_cell = function
-  | Nothing -> "Nothing"
-  | Island x -> ("Island" ^ (string_of_int (int_of_importance x)))
-  | Bridge b -> "Bridge : " ^ (string_of_bool b.isVertical) ^ " : " ^ (string_of_bool b.isDoubled)
+  | Nothing -> "        "
+  | Island x -> ("Île - " ^ (string_of_int (int_of_importance x))) ^ " "
+  | Bridge b -> "Bridge : " (*^ (string_of_bool b.isVertical) ^ " : " ^ (string_of_bool b.isDoubled)*)
 
 let test = Island (importance_of_int 3)
           
@@ -28,9 +28,10 @@ let getIsland sol = function | (x,y) -> nth (nth sol x) y
                                           
 let d = string_of_cell (getIsland sol1 (2,2))
     
-let _ = print_string d
+(* let _ = print_string d *)
     
 let dessinerPonts sol coord dir = 0
+                            
 
 let initSolution = fun p ->
   let liste = Puzzle.list_of_puzzle p in
@@ -74,9 +75,8 @@ let rec toString = fun s ->
       | [] -> ""
       | h1::t1 ->
         match h1 with
-        | Nothing -> "    " ^ (toStringLigne t1)
-        | Island i -> "⓪" ^ (toStringLigne t1)
-        | Bridge b -> "Pont" ^ (toStringLigne t1) 
+        | cell -> (string_of_cell h1) ^ toStringLigne t1
+                
     in (toStringLigne h) ^ "\n" ^(toString t)
 
 
