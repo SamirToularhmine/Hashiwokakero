@@ -3,12 +3,13 @@ open Coordinate;;
 type importance = Importance of int
 type puzzle = Puzzle of ((Coordinate.coordinate * importance) list)
                         
-let create = fun l -> Puzzle l
+let puzzle_of_list = fun l -> Puzzle l
     
 let reduction f =
   function | Puzzle plist -> List.fold_right f plist
                                
-let getImportance = fun n -> Importance n
+let importance_of_int = fun n -> Importance n
+    
 let int_of_importance = function | Importance n -> n
     
 let list_of_puzzle = fun p ->

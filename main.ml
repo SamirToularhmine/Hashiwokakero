@@ -13,25 +13,25 @@ type solution = cell list list;; *)
 (* Coordinate(colonne,ligne) *)
 open Puzzle;;
 open Coordinate;;
-let x = Coordinate.create (3,2);;
+let x = coord_from_pair (3,2);;
 
 (* A réfléchir pour voir si il y a besoin de méthodes create *)
-let puzzleTest = Puzzle.create
+let puzzleTest = puzzle_of_list
                    (
                      [
-                       (Coordinate.create (0,0), Puzzle.getImportance 4);
-                       (Coordinate.create (0,3), Puzzle.getImportance 4);
-                       (Coordinate.create (0,6), Puzzle.getImportance 3);
-                       (Coordinate.create (2,1), Puzzle.getImportance 1);
-                       (Coordinate.create (2,3), Puzzle.getImportance 4);
-                       (Coordinate.create (2,5), Puzzle.getImportance 2);
-                       (Coordinate.create (3,0), Puzzle.getImportance 4);
-                       (Coordinate.create (3,6), Puzzle.getImportance 5);
-                       (Coordinate.create (5,0), Puzzle.getImportance 2);
-                       (Coordinate.create (5,5), Puzzle.getImportance 1);
-                       (Coordinate.create (6,2), Puzzle.getImportance 1);
-                       (Coordinate.create (6,4), Puzzle.getImportance 3);
-                       (Coordinate.create (6,6), Puzzle.getImportance 4)
+                       (coord_from_pair (0,0), importance_of_int 4);
+                       (coord_from_pair (0,3), importance_of_int 4);
+                       (coord_from_pair (0,6), importance_of_int 3);
+                       (coord_from_pair (2,1), importance_of_int 1);
+                       (coord_from_pair (2,3), importance_of_int 4);
+                       (coord_from_pair (2,5), importance_of_int 2);
+                       (coord_from_pair (3,0), importance_of_int 4);
+                       (coord_from_pair (3,6), importance_of_int 5);
+                       (coord_from_pair (5,0), importance_of_int 2);
+                       (coord_from_pair (5,5), importance_of_int 1);
+                       (coord_from_pair (6,2), importance_of_int 1);
+                       (coord_from_pair (6,4), importance_of_int 3);
+                       (coord_from_pair (6,6), importance_of_int 4)
                      ]
                    );;
 

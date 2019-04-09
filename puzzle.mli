@@ -4,9 +4,9 @@ type importance
 type puzzle
 
    
-val create : (Coordinate.coordinate * importance) list -> puzzle
+val puzzle_of_list : (Coordinate.coordinate * importance) list -> puzzle
 val reduction : ((Coordinate.coordinate * importance) -> 'a -> 'a) -> puzzle -> 'a -> 'a
-val getImportance : int -> importance
+val importance_of_int : int -> importance
 val int_of_importance : importance -> int 
 val list_of_puzzle : puzzle -> (Coordinate.coordinate * importance) list
 val getMaxCol : puzzle -> int

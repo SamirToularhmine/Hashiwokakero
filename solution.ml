@@ -5,24 +5,31 @@ type bridge = { isVertical : bool; isDoubled : bool}
 type cell = Nothing | Island of Puzzle.importance | Bridge of bridge
 type solution = cell list list
 
-let string_of_cell = function | Nothing -> "Nothing"
-                              | Island x -> ("Island"^(string_of_int (getImportance x)))
-                              | Bridge b -> "Bridge : "^(string_of_bool b.isVertical)^" : "^(string_of_bool b.isDoubled)
+let string_of_cell = function
+  | Nothing -> "Nothing"
+  | Island x -> ("Island" ^ (string_of_int (int_of_importance x)))
+  | Bridge b -> "Bridge : " ^ (string_of_bool b.isVertical) ^ " : " ^ (string_of_bool b.isDoubled)
 
-let test = Island (getImportance 3)
+let test = Island (importance_of_int 3)
           
 let sol1 = [
     [Nothing;Nothing;Nothing;Nothing;Nothing];
     [Nothing;Nothing;Nothing;Nothing;Nothing];
-    [Nothing;Nothing;Island (getImportance 8);Nothing;Nothing];
+    [Nothing;Nothing;Island (importance_of_int 8);Nothing;Nothing];
     [Nothing;Nothing;Nothing;Nothing;Nothing];
     [Nothing;Nothing;Nothing;Nothing;Nothing]
   ]
+  
 type direction = Gauche | Haut | Droite | Bas
-let c = create (1,1)
+                 
+let c = coord_from_pair (1,1)
+    
 let getIsland sol = function | (x,y) -> nth (nth sol x) y
+                                          
 let d = string_of_cell (getIsland sol1 (2,2))
+    
 let _ = print_string d
+    
 let dessinerPonts sol coord dir = 0
 
 let initSolution = fun p ->

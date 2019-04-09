@@ -1,6 +1,6 @@
 type coordinate = Coordinate of (int * int)
 
-let create = fun (x,y) -> Coordinate (x,y)
+let coord_from_pair = fun (x,y) -> Coordinate (x,y)
 let pair_from_coord = function | Coordinate c -> c 
 let fstcoord (Coordinate (x,y))=x
 let sndcoord (Coordinate (x,y))=y
