@@ -11,16 +11,13 @@ let reduction f =
 let getImportance = fun n -> Importance n
     
 let list_of_puzzle = fun p ->
-  []
-  
-let rec toString = fun p ->
   match p with
-  | Puzzle p ->
-    match p with
-    | [] -> ""
-    | h::t -> (Coordinate.toString (fst h)) ^ (toString (Puzzle t))
+  | Puzzle p -> p
+
+let getMaxRow = fun p ->
+  Coordinate.fstcoord (fst (reduction (fun x -> fun y -> if (fst x) >~ (fst y) then x else y) p (List.hd (list_of_puzzle p))))
+
+let getMaxCol = fun p ->
+  Coordinate.fstcoord (fst (reduction (fun x -> fun y -> if (fst x) >~~ (fst y) then x else y) p (List.hd (list_of_puzzle p))))
 
 
-(* let ok = Puzzle.Puzzle [(Puzzle.Coordinate (0,0),Puzzle.Importance 4)];;*)
-(*open Coordinate*)                                      
-(*let x = Coordinate (1,1)*)
