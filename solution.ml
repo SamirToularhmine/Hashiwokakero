@@ -27,22 +27,22 @@ let initSolution = fun p ->
     let rec iles = fun i -> fun l -> 
       match l with
       | [] -> []
-      | h::t -> if Coordinate.fstcoord ((fst)h) = i
-        then h::(iles i t)
-        else (iles i t) in
+      | h::t ->
+        if Coordinate.fstcoord ((fst)h) = i then h::(iles i t) else (iles i t) in
     if i > maxRow then [] else
-        let rec creerLigne = fun l -> fun j ->
+      let rec creerLigne =
+        fun l -> fun j ->
           match l with
           | [] ->
             if j <= maxCol then (Nothing)::(creerLigne l (j+1)) else []
           | h::t ->
             let coord = fst h in
             let importance = snd h in
-            if (Coordinate.sndcoord coord > j) then
-              (Nothing)::(creerLigne (h::t) (j+1))  
+            if (Coordinate.sndcoord coord > j)
+            then (Nothing)::(creerLigne (h::t) (j+1))  
             else
-            if j > maxCol then
-              []
+            if j > maxCol
+            then []
             else
             if (Coordinate.sndcoord coord = j)
             then
@@ -61,9 +61,9 @@ let rec toString = fun s ->
       | [] -> ""
       | h1::t1 ->
         match h1 with
-        | Nothing -> "Rien " ^ (toStringLigne t1)
-        | Island i -> "Ile " ^ (toStringLigne t1)
-        | Bridge b -> "Pont " ^ (toStringLigne t1) 
+        | Nothing -> "    " ^ (toStringLigne t1)
+        | Island i -> "⓪" ^ (toStringLigne t1)
+        | Bridge b -> "Pont" ^ (toStringLigne t1) 
     in (toStringLigne h) ^ "\n" ^(toString t)
 
 
