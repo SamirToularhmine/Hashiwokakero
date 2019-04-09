@@ -6,7 +6,7 @@ type cell = Nothing | Island of Puzzle.importance | Bridge of bridge
 type solution = cell list list
 
 let string_of_cell = function | Nothing -> "Nothing"
-                              | Island x -> ("Island"^(string_of_int(getImportance x)))
+                              | Island x -> ("Island"^(string_of_int (getImportance x)))
                               | Bridge b -> "Bridge : "^(string_of_bool b.isVertical)^" : "^(string_of_bool b.isDoubled)
 
 let test = Island (getImportance 3)
