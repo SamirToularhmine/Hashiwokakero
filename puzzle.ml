@@ -20,7 +20,6 @@ let rec toString = fun p ->
     | [] -> ""
     | h::t -> (Coordinate.toString (fst h)) ^ (toString (Puzzle t))
 
-
 (* let ok = Puzzle.Puzzle [(Puzzle.Coordinate (0,0),Puzzle.Importance 4)];;*)
 (*open Coordinate*)                                      
 (*let x = Coordinate (1,1)*)
