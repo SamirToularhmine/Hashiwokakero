@@ -9,6 +9,7 @@ let reduction f =
   function | Puzzle plist -> List.fold_right f plist
                                
 let getImportance = fun n -> Importance n
+let int_of_importance = function | Importance n -> n
     
 let list_of_puzzle = fun p ->
   match p with
