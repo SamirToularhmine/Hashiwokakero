@@ -14,8 +14,6 @@ type solution = cell list list;; *)
 open Puzzle;;
 open Coordinate;;
 let x = Coordinate.create (3,2);;
-print_int (Coordinate.sndcoord x);;
-print_string "\n";;
 
 (* A réfléchir pour voir si il y a besoin de méthodes create *)
 let puzzleTest = Puzzle.create
@@ -37,8 +35,9 @@ let puzzleTest = Puzzle.create
                      ]
                    );;
 
+let solution = Solution.initSolution puzzleTest;;
 
-let y = Puzzle.list_of_puzzle puzzleTest;;
+print_string (Solution.toString solution);;
 
 
 (*let puzzle2 =
