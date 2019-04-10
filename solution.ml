@@ -161,6 +161,15 @@ let dessinerPonts sol pair dir =
      | OutOfBounds -> failwith "OOB"
      | BridgeMet -> failwith "Probleme bridge rencontré"
      | IslandMet -> failwith "Problème island rencontrée"
+
+let soltest =
+  [
+    [Nothing;Nothing;bv;Nothing;Nothing];
+    [Nothing;Nothing;bv;Nothing;Nothing];
+    [Nothing;Nothing;Island (importance_of_int 1);Nothing;Nothing];
+    [Nothing;Nothing;bv;Nothing;Nothing];
+    [Nothing;Nothing;Nothing;Nothing;Island (importance_of_int 4)]
+  ]
                                   
 let est_complet =
   fun c ->
@@ -173,6 +182,7 @@ let est_complet =
   let countPonts = fun c ->
     match c with
     | Bridge {isVertical = _; isDoubled = b} -> if b then 2 else 1
+    | Nothing -> 0
     | _ -> failwith "pas un pont" in
   let nbHaut = countPonts haut in
   let nbBas = countPonts bas in
@@ -184,8 +194,9 @@ let est_complet =
     | _ -> failwith "Pas une ile !" in
   let totalPont = nbHaut + nbBas + nbGauche + nbDroite in
   if totalPont < importance then false else if importance = totalPont then true else failwith "Trop de ponts !"
-           
-     
+
+let _ = print_string (string_of_bool (est_complet (coord_from_pair (2,2)) soltest))
+                    
 let sol2 = dessinerPonts sol1 (0,0) Gauche
                                   
 let msgDebug = toString (replace sol1 (1,1) (bv)) 
