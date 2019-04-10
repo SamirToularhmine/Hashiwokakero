@@ -38,37 +38,40 @@ let rec toString = fun s ->
 
 
 
-let initSolution = fun p ->
+let initSolution =
+  fun p ->
   let liste = Puzzle.list_of_puzzle p in
   let maxCol = Puzzle.getMaxCol p in
   let maxRow = Puzzle.getMaxRow p in
-  let rec creerSolution = fun l -> fun i -> fun j ->
-                                            let rec iles = fun i -> fun l -> 
-                                                                    match l with
-                                                                    | [] -> []
-                                                                    | h::t ->
-                                                                       if Coordinate.fstcoord ((fst)h) = i then h::(iles i t) else (iles i t) in
-                                            if i > maxRow then [] else
-                                              let rec creerLigne =
-        fun l -> fun j ->
-                 match l with
-          | [] ->
-            if j <= maxCol then (Nothing)::(creerLigne l (j+1)) else []
-          | h::t ->
-            let coord = fst h in
-            let importance = snd h in
-            if (Coordinate.sndcoord coord > j)
-            then (Nothing)::(creerLigne (h::t) (j+1))  
-            else
-              if j > maxCol
-              then []
-            else
-              if (Coordinate.sndcoord coord = j)
-              then
-                (Island importance)::(creerLigne t (j+1))
-              else
-                (Nothing)::(creerLigne t (j+1))
-                                              in (creerLigne (iles i l) 0)::(creerSolution liste (i+1) 0)
+  let rec creerSolution =
+    fun l -> fun i -> fun j ->
+                      let rec iles =
+                        fun i -> fun l -> 
+                                 match l with
+                                 | [] -> []
+                                 | h::t ->
+                                    if Coordinate.fstcoord ((fst)h) = i then h::(iles i t) else (iles i t) in
+                      if i > maxRow then [] else
+                        let rec creerLigne =
+                          fun l -> fun j ->
+                                   match l with
+                                   | [] ->
+                                      if j <= maxCol then (Nothing)::(creerLigne l (j+1)) else []
+                                   | h::t ->
+                                      let coord = fst h in
+                                      let importance = snd h in
+                                      if (Coordinate.sndcoord coord > j)
+                                      then (Nothing)::(creerLigne (h::t) (j+1))  
+                                      else
+                                        if j > maxCol
+                                        then []
+                                        else
+                                          if (Coordinate.sndcoord coord = j)
+                                          then
+                                            (Island importance)::(creerLigne t (j+1))
+                                          else
+                                            (Nothing)::(creerLigne t (j+1))
+                        in (creerLigne (iles i l) 0)::(creerSolution liste (i+1) 0)
   in (creerSolution liste 0 0)
    
 let test = Island (importance_of_int 3)
@@ -119,18 +122,18 @@ let oob puz =
   let mxC = (Puzzle.getMaxCol puz)
   in let mxR = (Puzzle.getMaxRow puz)
      in function | (x,y) ->
-                 (x > mxR) || (x < 0) || (y > mxC) || (y < 0);;
+                    (x > mxR) || (x < 0) || (y > mxC) || (y < 0);;
 
 exception OutOfBounds
 exception IslandMet
 exception BridgeMet
+        
 let dessinerPonts sol pair dir =
   let bvs = Bridge {isVertical = true;isDoubled = false} in
   let bvd = Bridge {isVertical = true;isDoubled = true} in
   let bhs = Bridge {isVertical = false;isDoubled = false} in
   let bhd = Bridge {isVertical = false;isDoubled = true} in
   let rec aux pair dir res =
-       
        if (oob puz1 pair) then raise OutOfBounds
        else
          let cell = getCell res pair in
@@ -141,25 +144,26 @@ let dessinerPonts sol pair dir =
            | Droite,(x,y) -> (x,y+1)
            | Bas,(x,y) -> (x+1,y)
          in
-         let actual_bridge = match dir with
+         let actual_bridge =
+           match dir with
            |Haut|Bas -> bvs
            |Gauche|Droite -> bhs
-         in
-         match cell,actual_bridge with
-         |Nothing,Bridge {isVertical = y;isDoubled = x} ->
-           aux nextPair dir (replace res pair (Bridge {isVertical = y;isDoubled = false }))
-         |Bridge b -> (match b,actual_bridge with
-                       |{isVertical = x;isDoubled = y},{isVertical = x';isDoubled = y'} when(x=x' && y!=true) ->
-                         aux nextPair dir (replace res pair (Bridge {isVertical = x;isDoubled = true }))
-                       | _ -> raise BridgeMet 
-                       in try aux sol pair dir [[]]
-                          with OutOfBounds -> failwith"OOB"
-                                            
-                                                                
-                       
-         
+         in match cell,actual_bridge with
+            |Nothing,Bridge {isVertical = y;isDoubled = x} ->
+              aux nextPair dir (replace res pair (Bridge {isVertical = y;isDoubled = false }))
+            | Bridge {isVertical = y; isDoubled = x} as b, Bridge {isVertical = y1; isDoubled = x1} ->
+              (match b,actual_bridge with
+               | Bridge {isVertical = x;isDoubled = y}, Bridge {isVertical = x';isDoubled = y'} when (x=x' && y <> true) ->
+                  aux nextPair dir (replace res pair (Bridge {isVertical = x;isDoubled = true }))
+               | _ -> raise BridgeMet)
+            | _ -> raise IslandMet
+  in try aux pair dir [[]] with
+     | OutOfBounds -> failwith "OOB"
+     | BridgeMet -> failwith "Probleme bridge rencontré"
+     | IslandMet -> failwith "Problème island rencontrée"
+                                 
 
-let sol2 = dessinerPonts sol1 (0,2) Haut
+let sol2 = dessinerPonts sol1 (0,0) Gauche
                                   
 let msgDebug = toString (replace sol1 (1,1) (bv)) 
                                 
