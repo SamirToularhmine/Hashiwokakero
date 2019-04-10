@@ -161,13 +161,30 @@ let dessinerPonts sol pair dir =
      | OutOfBounds -> failwith "OOB"
      | BridgeMet -> failwith "Probleme bridge rencontré"
      | IslandMet -> failwith "Problème island rencontrée"
-                                 
-exception PasIsland
-        
-let est_complet = fun i ->
-  match i with
-  | Island a -> int_of_importance a
-  | _ -> raise PasIsland;;
+                                  
+let est_complet =
+  fun c ->
+  fun sol ->
+  let cell = getCell sol (fstcoord c, sndcoord c) in
+  let haut = getCell sol (fstcoord c - 1, sndcoord c) in
+  let bas = getCell sol (fstcoord c + 1, sndcoord c) in
+  let gauche = getCell sol (fstcoord c, sndcoord c - 1) in
+  let droite = getCell sol (fstcoord c, sndcoord c + 1) in
+  let countPonts = fun c ->
+    match c with
+    | Bridge {isVertical = _; isDoubled = b} -> if b then 2 else 1
+    | _ -> failwith "pas un pont" in
+  let nbHaut = countPonts haut in
+  let nbBas = countPonts bas in
+  let nbGauche = countPonts gauche in
+  let nbDroite = countPonts droite in
+  let importance =
+    match cell with
+    | Island a -> int_of_importance a
+    | _ -> failwith "Pas une ile !" in
+  let totalPont = nbHaut + nbBas + nbGauche + nbDroite in
+  if totalPont < importance then false else if importance = totalPont then true else failwith "Trop de ponts !"
+           
      
 let sol2 = dessinerPonts sol1 (0,0) Gauche
                                   
