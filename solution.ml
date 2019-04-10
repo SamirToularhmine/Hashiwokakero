@@ -162,15 +162,18 @@ let dessinerPonts sol pair dir =
      | BridgeMet -> failwith "Probleme bridge rencontré"
      | IslandMet -> failwith "Problème island rencontrée"
                                  
-
+exception PasIsland
+        
+let est_complet = fun i ->
+  match i with
+  | Island a -> int_of_importance a
+  | _ -> raise PasIsland;;
+     
 let sol2 = dessinerPonts sol1 (0,0) Gauche
                                   
 let msgDebug = toString (replace sol1 (1,1) (bv)) 
                                 
 let debugPont = msgDebug^msgFinDebug
-
-
-     
 
 
 
