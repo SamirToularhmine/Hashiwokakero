@@ -76,10 +76,10 @@ let initSolution =
    
 let test = Island (importance_of_int 3)
 let bv = Bridge {isVertical = true;isDoubled = false}
-          
+       
 let sol1 = [
-    [Nothing;Nothing;bv;Nothing;Nothing];
-    [Nothing;Nothing;bv;Nothing;Nothing];
+    [Nothing;Nothing;Nothing;Nothing;Nothing];
+    [Nothing;Nothing;Nothing;Nothing;Nothing];
     [Nothing;Nothing;Island (importance_of_int 8);Nothing;Nothing];
     [Nothing;Nothing;Nothing;Nothing;Nothing];
     [Nothing;Nothing;Nothing;Nothing;Island (importance_of_int 4)]
@@ -88,9 +88,9 @@ let sol1 = [
 let puz1 =
   Puzzle.puzzle_of_list ([(coord_from_pair (2,2), importance_of_int 4);(coord_from_pair (4,4),importance_of_int 4)])         
 type direction = Gauche | Haut | Droite | Bas
-                 
+                                        
 let c = coord_from_pair (1,1)
-    
+      
 let getCell sol = function | (x,y) -> nth (nth sol x) y
 
 let msgFinDebug =("\n ---------FIN DEBUG----------- \n")
@@ -117,13 +117,14 @@ let replace sol pair cell =
       in aux1 t1 c v ((aux2 l2 c v [])::res1)
   in List.rev (aux1 l c v [])
 
-                                       
+   
 let oob puz =
   let mxC = (Puzzle.getMaxCol puz)
   in let mxR = (Puzzle.getMaxRow puz)
      in function | (x,y) ->
                     (x > mxR) || (x < 0) || (y > mxC) || (y < 0);;
 
+let string_of_pair = function | (x,y) -> ((string_of_int(x))^","^(string_of_int(y)))
 exception OutOfBounds
 exception IslandMet
 exception BridgeMet
@@ -133,44 +134,54 @@ let dessinerPonts sol pair dir =
   let bvd = Bridge {isVertical = true;isDoubled = true} in
   let bhs = Bridge {isVertical = false;isDoubled = false} in
   let bhd = Bridge {isVertical = false;isDoubled = true} in
+  let nextPair =  
+    match dir,pair with
+    | Gauche,(x,y) -> (x,y-1)
+    | Haut,(x,y) -> (x-1,y)
+    | Droite,(x,y) -> (x,y+1)
+    | Bas,(x,y) -> (x+1,y)
+  in
   let rec aux pair dir res =
-       if (oob puz1 pair) then raise OutOfBounds
-       else
-         let cell = getCell res pair in
-         let nextPair =  
-           match dir,pair with
-           | Gauche,(x,y) -> (x,y-1)
-           | Haut,(x,y) -> (x-1,y)
-           | Droite,(x,y) -> (x,y+1)
-           | Bas,(x,y) -> (x+1,y)
-         in
-         let actual_bridge =
-           match dir with
-           |Haut|Bas -> bvs
-           |Gauche|Droite -> bhs
-         in match cell,actual_bridge with
-            |Nothing,Bridge {isVertical = y;isDoubled = x} ->
-              aux nextPair dir (replace res pair (Bridge {isVertical = y;isDoubled = false }))
-            | Bridge {isVertical = y; isDoubled = x} as b, Bridge {isVertical = y1; isDoubled = x1} ->
-              (match b,actual_bridge with
-               | Bridge {isVertical = x;isDoubled = y}, Bridge {isVertical = x';isDoubled = y'} when (x=x' && y <> true) ->
-                  aux nextPair dir (replace res pair (Bridge {isVertical = x;isDoubled = true }))
-               | _ -> raise BridgeMet)
-            | _ -> raise IslandMet
-  in try aux pair dir [[]] with
-     | OutOfBounds -> failwith "OOB"
-     | BridgeMet -> failwith "Probleme bridge rencontré"
-     | IslandMet -> failwith "Problème island rencontrée"
-                                 
+    let nextPair =  
+      match dir,pair with
+      | Gauche,(x,y) -> (x,y-1)
+      | Haut,(x,y) -> (x-1,y)
+      | Droite,(x,y) -> (x,y+1)
+      | Bas,(x,y) -> (x+1,y)
+    in
+    if (oob puz1 pair) then res
+    else
+      let cell = getCell res pair in
+      
+      let actual_bridge =
+        match dir with
+        |Haut|Bas -> bvs
+        |Gauche|Droite -> bhs
+      in match cell,actual_bridge with
+         |Nothing,Bridge {isVertical = y;isDoubled = x} ->
+           (aux nextPair dir (replace res pair (Bridge {isVertical = y;isDoubled = false })))
+         | Bridge {isVertical = y; isDoubled = x} as b, Bridge {isVertical = y1; isDoubled = x1} ->
+            (match b,actual_bridge with
+             | Bridge {isVertical = x;isDoubled = y}, Bridge {isVertical = x';isDoubled = y'} when (x=x' && y <> true) ->
+                aux nextPair dir (replace res pair (Bridge {isVertical = x;isDoubled = true }))
+             | c1,c2 -> (print_string((string_of_pair(pair))^string_of_pair(nextPair)^"\n");res))
+         | Island imp,_ -> (print_int(int_of_importance imp);res)
+         | _,_ -> failwith"je pensais pas en arriver là :("
+                
+  in try aux nextPair dir sol with
+     | OutOfBounds -> failwith"OOB"
+     | IslandMet -> failwith"IslandMet"
+     | BridgeMet -> (print_string "Probleme bridge rencontré\n";sol)
+                  
 
-let sol2 = dessinerPonts sol1 (0,0) Gauche
-                                  
-let msgDebug = toString (replace sol1 (1,1) (bv)) 
-                                
+let sol2 = dessinerPonts sol1 (2,2) Gauche
+         
+let msgDebug = toString (sol2) 
+             
 let debugPont = msgDebug^msgFinDebug
 
 
-     
+                           
 
 
 
