@@ -44,43 +44,49 @@ let initSolution =
   let maxCol = Puzzle.getMaxCol p in
   let maxRow = Puzzle.getMaxRow p in
   let rec creerSolution =
-    fun l -> fun i -> fun j ->
-                      let rec iles =
-                        fun i -> fun l -> 
-                                 match l with
-                                 | [] -> []
-                                 | h::t ->
-                                    if Coordinate.fstcoord ((fst)h) = i then h::(iles i t) else (iles i t) in
-                      if i > maxRow then [] else
-                        let rec creerLigne =
-                          fun l -> fun j ->
-                                   match l with
-                                   | [] ->
-                                      if j <= maxCol then (Nothing)::(creerLigne l (j+1)) else []
-                                   | h::t ->
-                                      let coord = fst h in
-                                      let importance = snd h in
-                                      if (Coordinate.sndcoord coord > j)
-                                      then (Nothing)::(creerLigne (h::t) (j+1))  
-                                      else
-                                        if j > maxCol
-                                        then []
-                                        else
-                                          if (Coordinate.sndcoord coord = j)
-                                          then
-                                            (Island importance)::(creerLigne t (j+1))
-                                          else
-                                            (Nothing)::(creerLigne t (j+1))
-                        in (creerLigne (iles i l) 0)::(creerSolution liste (i+1) 0)
+    fun l ->
+    fun i ->
+    fun j ->
+    let rec iles =
+      fun i -> fun l -> 
+               match l with
+               | [] -> []
+               | h::t ->
+                  if Coordinate.fstcoord ((fst)h) = i then h::(iles i t) else (iles i t) in
+    if i > maxRow then [] else
+      let rec creerLigne =
+        fun l -> fun j ->
+                 match l with
+                 | [] ->
+                    if j <= maxCol then (Nothing)::(creerLigne l (j+1)) else []
+                 | h::t ->
+                    let coord = fst h in
+                    let importance = snd h in
+                    if (Coordinate.sndcoord coord > j)
+                    then (Nothing)::(creerLigne (h::t) (j+1))  
+                    else
+                      if j > maxCol
+                      then []
+                      else
+                        if (Coordinate.sndcoord coord = j)
+                        then
+                          (Island importance)::(creerLigne t (j+1))
+                        else
+                          (Nothing)::(creerLigne t (j+1))
+      in (creerLigne (iles i l) 0)::(creerSolution liste (i+1) 0)
   in (creerSolution liste 0 0)
    
 let test = Island (importance_of_int 3)
 let bv = Bridge {isVertical = true;isDoubled = false}
-       
-let sol1 = [
+let isl n = Island (importance_of_int n)
+let sol1 =
+  let bvs = Bridge {isVertical = true;isDoubled = false} in
+  let bvd = Bridge {isVertical = true;isDoubled = true} in
+  let bhs = Bridge {isVertical = false;isDoubled = false} in
+  let bhd = Bridge {isVertical = false;isDoubled = true} in[
     [Nothing;Nothing;Nothing;Nothing;Nothing];
     [Nothing;Nothing;Nothing;Nothing;Nothing];
-    [Nothing;Nothing;Island (importance_of_int 8);Nothing;Nothing];
+    [Nothing;isl 8;Nothing;bhs;isl 1];
     [Nothing;Nothing;Nothing;Nothing;Nothing];
     [Nothing;Nothing;Nothing;Nothing;Island (importance_of_int 4)]
   ]
@@ -174,7 +180,7 @@ let dessinerPonts sol pair dir =
      | BridgeMet -> (print_string "Probleme bridge rencontré\n";sol)
                   
 
-let sol2 = dessinerPonts sol1 (2,2) Gauche
+let sol2 = dessinerPonts sol1 (2,4) Gauche
          
 let msgDebug = toString (sol2) 
              
@@ -182,6 +188,49 @@ let debugPont = msgDebug^msgFinDebug
 
 
                            
+
+
+
+      
+
+let count_total_ponts =
+  fun cell -> fun sol ->
+           let haut = getCell sol (fstcoord c - 1, sndcoord c) in
+           let bas = getCell sol (fstcoord c + 1, sndcoord c) in
+           let gauche = getCell sol (fstcoord c, sndcoord c - 1) in
+           let droite = getCell sol (fstcoord c, sndcoord c + 1) in
+           let countPonts = fun c ->
+             match c with
+             | Bridge {isVertical = _; isDoubled = b} -> if b then 2 else 1
+             | Nothing -> 0
+             | _ -> failwith "pas un pont" in
+           let nbHaut = countPonts haut in
+           let nbBas = countPonts bas in
+           let nbGauche = countPonts gauche in
+           let nbDroite = countPonts droite in
+           nbHaut + nbBas + nbGauche + nbDroite
+            
+let est_complet =
+  fun c ->
+  fun sol ->
+   let cell = getCell sol (fstcoord c, sndcoord c) in
+  let importance =
+    match cell with
+    | Island a -> int_of_importance a
+    | _ -> failwith "Pas une ile !" in
+  let totalPont = count_total_ponts c sol in 
+  if totalPont < importance then false else if importance = totalPont then true else failwith "Trop de ponts !"
+
+let ponts_restants =
+  fun c -> fun sol ->
+           let cell = getCell sol (fstcoord c, sndcoord c) in
+           let importance =
+             match cell with
+             | Island a -> int_of_importance a
+             | _ -> failwith "Pas une ile !" in
+           let total_ponts = count_total_ponts c sol in importance - total_ponts
+                    
+
 
 
 
