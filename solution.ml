@@ -162,40 +162,42 @@ let dessinerPonts sol pair dir =
      | BridgeMet -> failwith "Probleme bridge rencontré"
      | IslandMet -> failwith "Problème island rencontrée"
 
-let soltest =
-  [
-    [Nothing;Nothing;bv;Nothing;Nothing];
-    [Nothing;Nothing;bv;Nothing;Nothing];
-    [Nothing;Nothing;Island (importance_of_int 1);Nothing;Nothing];
-    [Nothing;Nothing;bv;Nothing;Nothing];
-    [Nothing;Nothing;Nothing;Nothing;Island (importance_of_int 4)]
-  ]
-                                  
+let count_total_ponts =
+  fun cell -> fun sol ->
+           let haut = getCell sol (fstcoord c - 1, sndcoord c) in
+           let bas = getCell sol (fstcoord c + 1, sndcoord c) in
+           let gauche = getCell sol (fstcoord c, sndcoord c - 1) in
+           let droite = getCell sol (fstcoord c, sndcoord c + 1) in
+           let countPonts = fun c ->
+             match c with
+             | Bridge {isVertical = _; isDoubled = b} -> if b then 2 else 1
+             | Nothing -> 0
+             | _ -> failwith "pas un pont" in
+           let nbHaut = countPonts haut in
+           let nbBas = countPonts bas in
+           let nbGauche = countPonts gauche in
+           let nbDroite = countPonts droite in
+           nbHaut + nbBas + nbGauche + nbDroite
+            
 let est_complet =
   fun c ->
   fun sol ->
-  let cell = getCell sol (fstcoord c, sndcoord c) in
-  let haut = getCell sol (fstcoord c - 1, sndcoord c) in
-  let bas = getCell sol (fstcoord c + 1, sndcoord c) in
-  let gauche = getCell sol (fstcoord c, sndcoord c - 1) in
-  let droite = getCell sol (fstcoord c, sndcoord c + 1) in
-  let countPonts = fun c ->
-    match c with
-    | Bridge {isVertical = _; isDoubled = b} -> if b then 2 else 1
-    | Nothing -> 0
-    | _ -> failwith "pas un pont" in
-  let nbHaut = countPonts haut in
-  let nbBas = countPonts bas in
-  let nbGauche = countPonts gauche in
-  let nbDroite = countPonts droite in
+   let cell = getCell sol (fstcoord c, sndcoord c) in
   let importance =
     match cell with
     | Island a -> int_of_importance a
     | _ -> failwith "Pas une ile !" in
-  let totalPont = nbHaut + nbBas + nbGauche + nbDroite in
+  let totalPont = count_total_ponts c sol in 
   if totalPont < importance then false else if importance = totalPont then true else failwith "Trop de ponts !"
 
-let _ = print_string (string_of_bool (est_complet (coord_from_pair (2,2)) soltest))
+let ponts_restants =
+  fun c -> fun sol ->
+           let cell = getCell sol (fstcoord c, sndcoord c) in
+           let importance =
+             match cell with
+             | Island a -> int_of_importance a
+             | _ -> failwith "Pas une ile !" in
+           let total_ponts = count_total_ponts c sol in importance - total_ponts
                     
 let sol2 = dessinerPonts sol1 (0,0) Gauche
                                   
