@@ -78,7 +78,7 @@ let sol1 =
   let bhd = Bridge {isVertical = false;isDoubled = true} in[
     [Nothing;Nothing;Nothing;Nothing;Nothing];
     [Nothing;Nothing;Nothing;Nothing;Nothing];
-    [Nothing;isl 8;Nothing;bhs;isl 1];
+    [Nothing;Nothing;isl 8;bhs;isl 1];
     [Nothing;Nothing;Nothing;Nothing;Nothing];
     [Nothing;Nothing;Nothing;Nothing;Island (importance_of_int 4)]
   ]
@@ -130,7 +130,8 @@ let oob puz =
   | (x,y) -> (x > mxR) || (x < 0) || (y > mxC) || (y < 0);;
 
 let string_of_pair = function
-  | (x,y) -> ((string_of_int(x)) ^ "," ^ (string_of_int(y)))
+  | (x,y) -> ("("^(string_of_int(x)) ^ "," ^ (string_of_int(y))^")")
+let print_pair pair= print_string (string_of_pair pair)
 
 exception OutOfBounds
 exception IslandMet
@@ -162,7 +163,7 @@ let dessinerPonts sol pair dir =
           | c1,c2 -> (print_string((string_of_pair(pair))^string_of_pair(nextPair)^"HEHO\n");res)
         )
         
-      | Island imp,_ -> (print_int(int_of_importance imp);res)
+      | Island imp,_ -> (res)
       | _,_ -> failwith"je pensais pas en arriver là :("
                  
   in try aux nextPair dir sol with
@@ -223,16 +224,24 @@ let get_voisins sol pair =
   
   let rec get_first_island pair dir =
     let nextPair = next_pair dir pair in
-    let current_cell = getCell sol pair in
+   
+    if (oob puz1 pair) then []
+    else
+      let current_cell = getCell sol pair in
     match current_cell with
     |Nothing -> get_first_island nextPair dir
     |(Bridge b') as b -> if (bon_sens_pas_double (b,dir)) then (get_first_island nextPair dir) else []
-    |(Island imp) as isl -> if (est_complet (coord_from_pair pair) sol) then [] else [pair] in
+    |(Island imp) as isl -> if (est_complet (coord_from_pair pair) sol) then [] else [pair]
+                          
+  in
 
-  (get_first_island pair Gauche)@(get_first_island pair Haut)@(get_first_island pair Droite)@(get_first_island pair Bas)
+  (get_first_island (next_pair Gauche pair) Gauche)@
+    (get_first_island (next_pair Haut pair) Haut)@
+      (get_first_island (next_pair Droite pair) Droite)@
+        (get_first_island (next_pair Bas pair) Bas)
+  
 
-
-let msgDebug = string_of_int(List.length (get_voisins sol1 (2,2))) 
+let msgDebug = "\n"^(List.fold_right (fun x y-> ("HO : ")^(string_of_pair x)^"]["^y) (get_voisins sol1 (2,2)) "")^"\n"^(toString sol1) 
              
 let debugPont = msgDebug^msgFinDebug
                                                                                                
