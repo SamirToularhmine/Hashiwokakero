@@ -258,7 +258,7 @@ let get_voisins sol pair =
  let msgDebug = "\n"^(List.fold_right (fun x y-> ("HO : ")^(string_of_pair x)^"]["^y) (get_voisins sol1 (2,2)) "")^"\n"^(toString sol1) 
              
 (* let debugPont = msgDebug^msgFinDebug *)
-                                                                                     let debugPont = ""         
+let debugPont = ""         
 
                                                                   
 
