@@ -16,6 +16,7 @@ let string_of_cell = function
   | Island x -> ("Île - " ^ (string_of_int (int_of_importance x))) ^ " "
   | (Bridge b) -> string_of_bridge b (*^ (string_of_bool b.isVertical) ^ " : " ^ (string_of_bool b.isDoubled)*)
 
+
 let importance_of_island = function
   | Island imp -> imp
   | Nothing -> failwith"pas d'importance sur Nothing"
@@ -37,6 +38,12 @@ let rec toString = fun s ->
          | cell -> (string_of_cell h1) ^ toStringLigne t1
                      
      in (toStringLigne h) ^ "\n" ^(toString t)
+                                  
+let oob puz =
+  let mxC = (Puzzle.getMaxCol puz) in
+  let mxR = (Puzzle.getMaxRow puz) in
+  function
+  | (x,y) -> (x >mxR) || (x < 0) || (y > mxC) || (y < 0);;
 
 
 let init_solution = fun p ->
@@ -71,17 +78,16 @@ let bv = Bridge {isVertical = true;isDoubled = false}
 
 let isl n = Island (importance_of_int n)
 
-
 let sol1 =
   let bvs = Bridge {isVertical = true;isDoubled = false} in
   let bvd = Bridge {isVertical = true;isDoubled = true} in
   let bhs = Bridge {isVertical = false;isDoubled = false} in
   let bhd = Bridge {isVertical = false;isDoubled = true} in[
+    [isl 2;Nothing;Nothing;Nothing;Nothing];
     [Nothing;Nothing;Nothing;Nothing;Nothing];
+    [isl 8;bhd;bhd;bhd;isl 1];
     [Nothing;Nothing;Nothing;Nothing;Nothing];
-    [Nothing;Nothing;isl 8;bhs;isl 1];
-    [Nothing;Nothing;Nothing;Nothing;Nothing];
-    [Nothing;Nothing;Nothing;Nothing;Island (importance_of_int 4)]
+    [isl 4;Nothing;Nothing;Nothing;Island (importance_of_int 4)]
   ]
 
 let puz1 =
@@ -89,9 +95,9 @@ let puz1 =
 
 type direction = Gauche | Haut | Droite | Bas
                                         
-(* let c = coord_from_pair (1,1) *)
+let c = coord_from_pair (1,1)
       
-let getCell sol = function | (x,y) -> nth (nth sol x) y
+let getCell sol = function | (x,y) -> if(oob puz1 (x,y))then failwith"OULAH" else nth (nth sol x) y
                                         
 let msgFinDebug = ("\n ---------FIN DEBUG----------- \n")
 
@@ -102,7 +108,13 @@ let next_pair dir pair =
   | Droite,(x,y) -> (x,y+1)
   | Bas,(x,y) -> (x+1,y)
                  
-
+let string_of_direction = fun d ->
+  match d with
+  | Haut -> "Haut"
+  | Bas -> "Bas"
+  | Gauche -> "Gauche"
+  | Droite -> "Droite"
+    
 let replace sol pair cell =
   let getIndex l l' = ((length l) - (length l'))in
   let l = sol in
@@ -124,16 +136,11 @@ let replace sol pair cell =
       aux1 t1 c v ((aux2 l2 c v [])::res1) in
   List.rev (aux1 l c v [])
 
-let oob puz =
-  let mxC = (Puzzle.getMaxCol puz) in
-  let mxR = (Puzzle.getMaxRow puz) in
-  function
-  | (x,y) -> (x > mxR) || (x < 0) || (y > mxC) || (y < 0);;
 
 let string_of_pair = function
   | (x,y) -> ("("^(string_of_int(x)) ^ "," ^ (string_of_int(y))^")")
 let print_pair pair= print_string (string_of_pair pair)
-
+    
 exception OutOfBounds
 exception IslandMet
 exception BridgeMet
@@ -171,7 +178,12 @@ let dessinerPonts sol pair dir =
   | BridgeMet -> failwith"Probleme bridge rencontré"
                   
                   
-let count_total_ponts = fun c -> fun sol ->
+let sol2 = dessinerPonts sol1 (2,4) Gauche
+         
+
+              
+
+let count_total_ponts = fun cell -> fun sol ->
   let haut = getCell sol (fstcoord c - 1, sndcoord c) in
   let bas = getCell sol (fstcoord c + 1, sndcoord c) in
   let gauche = getCell sol (fstcoord c, sndcoord c - 1) in
@@ -206,27 +218,7 @@ let ponts_restants = fun c -> fun sol ->
     | _ -> failwith "Pas une ile !" in
   let total_ponts = count_total_ponts c sol in
   importance - total_ponts
-
-let solve = fun puzzle ->
-  let solution_vide = init_solution puzzle in
-  let rec iter = fun sol ->
-    match sol with
-    | [] -> []
-    | h::t ->
-      let rec iter_ligne = fun ligne ->
-        match ligne with
-        | [] -> []
-        | h1::t1 ->
-          match h1 with
-          | Island a ->
-            print_string "on étudie l'île \n";
-            iter_ligne t1
-          | Bridge _ -> iter_ligne t1
-          | Nothing -> iter_ligne t1 in
-      (iter_ligne h)::iter t in
-  iter solution_vide;;
-
-print_string (toString (solve puz1))
+  
 
 let get_voisins sol pair =
   let bon_sens_pas_double =
@@ -236,32 +228,50 @@ let get_voisins sol pair =
     | _,_ -> false in
   
   let rec get_first_island pair dir =
+    print_string ("pas bon" ^ (string_of_direction dir));
     let nextPair = next_pair dir pair in
-   
     if (oob puz1 pair) then []
     else
-      let current_cell = getCell sol pair in
+      let current_cell = getCell sol pair  in
+
     match current_cell with
     |Nothing -> get_first_island nextPair dir
     |(Bridge b') as b -> if (bon_sens_pas_double (b,dir)) then (get_first_island nextPair dir) else []
     |(Island imp) as isl -> if (est_complet (coord_from_pair pair) sol) then [] else [pair]
-                          
+    (*est_complet (coord_from_pair pair) sol*)
   in
 
   (get_first_island (next_pair Gauche pair) Gauche)@
     (get_first_island (next_pair Haut pair) Haut)@
       (get_first_island (next_pair Droite pair) Droite)@
-        (get_first_island (next_pair Bas pair) Bas)
+  (get_first_island (next_pair Bas pair) Bas)
+
+let _ = print_string (string_of_cell (getCell sol1 (4,4)))
   
+let solve = fun puzzle ->
+  let solution_vide = init_solution puzzle in
+  let rec iter = fun sol -> fun i ->
+    match sol with
+    | [] -> []
+    | h::t ->
+      let rec iter_ligne = fun ligne -> fun j ->
+        match ligne with
+        | [] -> []
+        | h1::t1 ->
+          match h1 with
+          | Island a ->
+            let voisins = print_pair (i,j); get_voisins sol (i,j) in 
+            iter_ligne t1 (j+1)
+          | Bridge _ -> iter_ligne t1 (j+1)
+          | Nothing -> iter_ligne t1 (j+1) in
+      (iter_ligne h 0)::iter t (i+1) in
+  iter solution_vide 0;;
+
+print_string (toString (solve puz1))
 
 
- let msgDebug = "\n"^(List.fold_right (fun x y-> ("HO : ")^(string_of_pair x)^"]["^y) (get_voisins sol1 (2,2)) "")^"\n"^(toString sol1) 
+(* let msgDebug = "\n"^(List.fold_right (fun x y-> ("HO : ")^(string_of_pair x)^"]["^y) (get_voisins sol1 (2,0)) "")^"\n"^(toString sol1) *)
              
 (* let debugPont = msgDebug^msgFinDebug *)
-let debugPont = ""         
 
-                                                                  
-
-
-
-
+let debugPont = ""
