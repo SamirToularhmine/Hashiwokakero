@@ -213,7 +213,8 @@ let ponts_restants = fun c -> fun sol ->
   importance - total_ponts
 
 let solve = fun puzzle ->
-  init_solution puzzle
+  let solution_vide = init_solution puzzle in
+  solution_vide
 
 
 

@@ -35,7 +35,7 @@ let puzzleTest = puzzle_of_list
                      ]
                    );;
 
-let solution = Solution.initSolution puzzleTest;;
+let solution = Solution.init_solution puzzleTest;;
 
 (*let _ = print_string (Solution.toString solution);;*)
 
