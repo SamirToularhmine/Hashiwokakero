@@ -171,9 +171,7 @@ let dessinerPonts sol pair dir =
                   
 let sol2 = dessinerPonts sol1 (2,4) Gauche
          
-let msgDebug = toString (sol2) 
-             
-let debugPont = msgDebug^msgFinDebug
+
               
 
 let count_total_ponts = fun cell -> fun sol ->
@@ -216,6 +214,30 @@ let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
   solution_vide
 
+let get_voisins sol pair =
+  let bon_sens_pas_double =
+    function
+    | Bridge {isVertical = true; isDoubled = false },(Haut|Bas) -> true
+    | Bridge {isVertical = false; isDoubled = false },(Gauche|Droite) -> true
+    | _,_ -> false in
+  
+  let rec get_first_island pair dir =
+    let nextPair = next_pair dir pair in
+    let current_cell = getCell sol pair in
+    match current_cell with
+    |Nothing -> get_first_island nextPair dir
+    |(Bridge b') as b -> if (bon_sens_pas_double (b,dir)) then (get_first_island nextPair dir) else []
+    |(Island imp) as isl -> if (est_complet (coord_from_pair pair) sol) then [] else [pair] in
+
+  (get_first_island pair Gauche)@(get_first_island pair Haut)@(get_first_island pair Droite)@(get_first_island pair Bas)
+
+
+let msgDebug = string_of_int(List.length (get_voisins sol1 (2,2))) 
+             
+let debugPont = msgDebug^msgFinDebug
+                                                                                               
+
+                                                                  
 
 
 
