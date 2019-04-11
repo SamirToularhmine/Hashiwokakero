@@ -71,6 +71,7 @@ let bv = Bridge {isVertical = true;isDoubled = false}
 
 let isl n = Island (importance_of_int n)
 
+
 let sol1 =
   let bvs = Bridge {isVertical = true;isDoubled = false} in
   let bvd = Bridge {isVertical = true;isDoubled = true} in
@@ -88,7 +89,7 @@ let puz1 =
 
 type direction = Gauche | Haut | Droite | Bas
                                         
-let c = coord_from_pair (1,1)
+(* let c = coord_from_pair (1,1) *)
       
 let getCell sol = function | (x,y) -> nth (nth sol x) y
                                         
@@ -169,12 +170,7 @@ let dessinerPonts sol pair dir =
   | BridgeMet -> failwith"Probleme bridge rencontré"
                   
                   
-let sol2 = dessinerPonts sol1 (2,4) Gauche
-         
-
-              
-
-let count_total_ponts = fun cell -> fun sol ->
+let count_total_ponts = fun c -> fun sol ->
   let haut = getCell sol (fstcoord c - 1, sndcoord c) in
   let bas = getCell sol (fstcoord c + 1, sndcoord c) in
   let gauche = getCell sol (fstcoord c, sndcoord c - 1) in
@@ -212,7 +208,24 @@ let ponts_restants = fun c -> fun sol ->
 
 let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
-  solution_vide
+  let rec iter = fun sol ->
+    match sol with
+    | [] -> []
+    | h::t ->
+      let rec iter_ligne = fun ligne ->
+        match ligne with
+        | [] -> []
+        | h1::t1 ->
+          match h1 with
+          | Island a ->
+            print_string "on étudie l'île \n";
+            iter_ligne t1
+          | Bridge _ -> iter_ligne t1
+          | Nothing -> iter_ligne t1 in
+      (iter_ligne h)::iter t in
+  iter solution_vide;;
+
+print_string (toString (solve puz1))
 
 let get_voisins sol pair =
   let bon_sens_pas_double =
@@ -232,10 +245,10 @@ let get_voisins sol pair =
   (get_first_island pair Gauche)@(get_first_island pair Haut)@(get_first_island pair Droite)@(get_first_island pair Bas)
 
 
-let msgDebug = string_of_int(List.length (get_voisins sol1 (2,2))) 
+(* let msgDebug = string_of_int(List.length (get_voisins sol1 (2,2))) *) 
              
-let debugPont = msgDebug^msgFinDebug
-                                                                                               
+(* let debugPont = msgDebug^msgFinDebug *)
+                                                                                     let debugPont = ""         
 
                                                                   
 
