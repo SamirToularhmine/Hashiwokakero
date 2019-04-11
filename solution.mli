@@ -6,8 +6,10 @@ type solution
 
 val string_of_cell : cell -> string
       
-val initSolution : Puzzle.puzzle -> cell list list
+val init_solution : Puzzle.puzzle -> cell list list
 
 val toString : cell list list -> string
 
 val debugPont : string
+
+val solve : puzzle -> solution

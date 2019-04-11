@@ -39,7 +39,7 @@ let rec toString = fun s ->
      in (toStringLigne h) ^ "\n" ^(toString t)
 
 
-let initSolution = fun p ->
+let init_solution = fun p ->
   let liste = Puzzle.list_of_puzzle p in
   let maxCol = Puzzle.getMaxCol p in
   let maxRow = Puzzle.getMaxRow p in
@@ -209,9 +209,11 @@ let ponts_restants = fun c -> fun sol ->
     match cell with
     | Island a -> int_of_importance a
     | _ -> failwith "Pas une ile !" in
-  let total_ponts = count_total_ponts c sol in importance - total_ponts
-                                               
+  let total_ponts = count_total_ponts c sol in
+  importance - total_ponts
 
+let solve = fun puzzle ->
+  init_solution puzzle
 
 
 
