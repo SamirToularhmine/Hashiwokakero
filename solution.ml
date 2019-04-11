@@ -99,8 +99,15 @@ let c = coord_from_pair (1,1)
       
 let getCell sol = function | (x,y) -> nth (nth sol x) y
 
-let msgFinDebug =("\n ---------FIN DEBUG----------- \n")
+let msgFinDebug = ("\n ---------FIN DEBUG----------- \n")
 
+let next_pair dir pair=
+  match dir,pair with
+  | Gauche,(x,y) -> (x,y-1)
+  | Haut,(x,y) -> (x-1,y)
+  | Droite,(x,y) -> (x,y+1)
+  | Bas,(x,y) -> (x+1,y)
+               
 
 let replace sol pair cell =
   let getIndex l l' = ((length l) - (length l'))in
@@ -141,19 +148,10 @@ let dessinerPonts sol pair dir =
   let bhs = Bridge {isVertical = false;isDoubled = false} in
   let bhd = Bridge {isVertical = false;isDoubled = true} in
   let nextPair =  
-    match dir,pair with
-    | Gauche,(x,y) -> (x,y-1)
-    | Haut,(x,y) -> (x-1,y)
-    | Droite,(x,y) -> (x,y+1)
-    | Bas,(x,y) -> (x+1,y)
+    next_pair dir pair
   in
   let rec aux pair dir res =
-    let nextPair =  
-      match dir,pair with
-      | Gauche,(x,y) -> (x,y-1)
-      | Haut,(x,y) -> (x-1,y)
-      | Droite,(x,y) -> (x,y+1)
-      | Bas,(x,y) -> (x+1,y)
+    let nextPair = next_pair dir pair
     in
     if (oob puz1 pair) then res
     else
@@ -163,35 +161,30 @@ let dessinerPonts sol pair dir =
         match dir with
         |Haut|Bas -> bvs
         |Gauche|Droite -> bhs
+                        
       in match cell,actual_bridge with
          |Nothing,Bridge {isVertical = y;isDoubled = x} ->
            (aux nextPair dir (replace res pair (Bridge {isVertical = y;isDoubled = false })))
+          
          | Bridge {isVertical = y; isDoubled = x} as b, Bridge {isVertical = y1; isDoubled = x1} ->
             (match b,actual_bridge with
              | Bridge {isVertical = x;isDoubled = y}, Bridge {isVertical = x';isDoubled = y'} when (x=x' && y <> true) ->
                 aux nextPair dir (replace res pair (Bridge {isVertical = x;isDoubled = true }))
-             | c1,c2 -> (print_string((string_of_pair(pair))^string_of_pair(nextPair)^"\n");res))
+             | c1,c2 -> (print_string((string_of_pair(pair))^string_of_pair(nextPair)^"HEHO\n");res))
+           
          | Island imp,_ -> (print_int(int_of_importance imp);res)
          | _,_ -> failwith"je pensais pas en arriver là :("
                 
   in try aux nextPair dir sol with
-     | OutOfBounds -> failwith"OOB"
-     | IslandMet -> failwith"IslandMet"
-     | BridgeMet -> (print_string "Probleme bridge rencontré\n";sol)
+     | BridgeMet -> failwith"Probleme bridge rencontré"
                   
-
+                  
 let sol2 = dessinerPonts sol1 (2,4) Gauche
          
 let msgDebug = toString (sol2) 
              
 let debugPont = msgDebug^msgFinDebug
-
-
-                           
-
-
-
-      
+              
 
 let count_total_ponts =
   fun cell -> fun sol ->
@@ -209,11 +202,11 @@ let count_total_ponts =
            let nbGauche = countPonts gauche in
            let nbDroite = countPonts droite in
            nbHaut + nbBas + nbGauche + nbDroite
-            
+           
 let est_complet =
   fun c ->
   fun sol ->
-   let cell = getCell sol (fstcoord c, sndcoord c) in
+  let cell = getCell sol (fstcoord c, sndcoord c) in
   let importance =
     match cell with
     | Island a -> int_of_importance a
