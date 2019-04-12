@@ -6,14 +6,14 @@ type cell = Nothing | Island of Puzzle.importance | Bridge of bridge
 type solution = cell list list
 let string_of_bridge b =
   match (b.isDoubled),(b.isVertical) with
-  | (false,false) -> "--------"
-  | (false,true)  -> "|**II**|"
-  | (true,false)  -> "========"
-  | (true,true)   -> "|*IIII*|"
+  | (false,false) -> "---------"
+  | (false,true)  -> "[   |   ]"
+  | (true,false)  -> "========="
+  | (true,true)   -> "[  | |  ]"
     
 let string_of_cell = function
-  | Nothing -> "|******|"
-  | Island x -> ("Île - " ^ (string_of_int (int_of_importance x))) ^ " "
+  | Nothing -> "[       ]"
+  | Island x -> ("[Île - " ^ (string_of_int (int_of_importance x))) ^ "]"
   | (Bridge b) -> string_of_bridge b (*^ (string_of_bool b.isVertical) ^ " : " ^ (string_of_bool b.isDoubled)*)
 
 
@@ -83,11 +83,11 @@ let sol1 =
   let bvd = Bridge {isVertical = true;isDoubled = true} in
   let bhs = Bridge {isVertical = false;isDoubled = false} in
   let bhd = Bridge {isVertical = false;isDoubled = true} in[
-    [isl 2;Nothing;Nothing;Nothing;Nothing];
+    [isl 8;bhd;isl 8;Nothing;Nothing];
+    [bvd;Nothing;Nothing;Nothing;Nothing];
+    [isl 8;bhs;isl 8;bhs;isl 8];
     [Nothing;Nothing;Nothing;Nothing;Nothing];
-    [isl 8;bhd;bhd;bhd;isl 1];
-    [Nothing;Nothing;Nothing;Nothing;Nothing];
-    [isl 4;Nothing;Nothing;Nothing;Island (importance_of_int 4)]
+    [isl 4;Nothing;isl 8;Nothing;Island (importance_of_int 4)]
   ]
 
 let puz1 =
@@ -237,7 +237,7 @@ let get_voisins sol pair =
     match current_cell with
     |Nothing -> get_first_island nextPair dir
     |(Bridge b') as b -> if (bon_sens_pas_double (b,dir)) then (get_first_island nextPair dir) else []
-    |(Island imp) as isl -> if (est_complet (coord_from_pair pair) sol) then [] else [pair]
+    |(Island imp) -> if (est_complet (coord_from_pair pair) sol) then [] else [pair]
     (*est_complet (coord_from_pair pair) sol*)
   in
 
@@ -246,6 +246,31 @@ let get_voisins sol pair =
       (get_first_island (next_pair Droite pair) Droite)@
   (get_first_island (next_pair Bas pair) Bas)
 
+let get_voisins_pont sol pair =
+  let bon_sens =
+    function
+    | Bridge {isVertical = true; isDoubled = _ },(Haut|Bas) -> true
+    | Bridge {isVertical = false; isDoubled = _ },(Gauche|Droite) -> true
+    | _,_ -> false in
+  
+  let rec get_first_island pair dir =
+    let nextPair = next_pair dir pair in
+    if (oob puz1 pair) then []
+    else
+      let current_cell = getCell sol pair  in
+
+    match current_cell with
+    |Nothing ->  []
+    |(Bridge b') as b -> if (bon_sens (b,dir)) then (get_first_island nextPair dir) else []
+    |(Island imp)-> [pair]
+    
+  in
+
+  (get_first_island (next_pair Gauche pair) Gauche)@
+    (get_first_island (next_pair Haut pair) Haut)@
+      (get_first_island (next_pair Droite pair) Droite)@
+  (get_first_island (next_pair Bas pair) Bas)
+  
 let _ = print_string (string_of_cell (getCell sol1 (4,4)))
   
 let solve = fun puzzle ->
@@ -267,11 +292,21 @@ let solve = fun puzzle ->
       (iter_ligne h 0)::iter t (i+1) in
   iter solution_vide 0;;
 
-print_string (toString (solve puz1))
+(*print_string (toString (solve puz1))*)
+let string_of_list string_of liste = (List.fold_right (fun x y-> ("[")^(string_of x)^"]"^y) (liste) "")
+(* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
+let parcours_largeur_pont sol pair =
+  let rec aux pair file res =
+    let voisins = get_voisins_pont sol pair in
+    let voisins_non_atteint = List.filter (fun x -> (not(List.mem x res ))) voisins in
+    match file with
+    |[] -> res
+    |h::t -> aux h (t@voisins_non_atteint) (res@voisins_non_atteint)
+  in aux pair [pair] [pair]
 
-
-(* let msgDebug = "\n"^(List.fold_right (fun x y-> ("HO : ")^(string_of_pair x)^"]["^y) (get_voisins sol1 (2,0)) "")^"\n"^(toString sol1) *)
+let sol3 = replace sol1 (1,2) (isl 6)
+let msgDebug = "\n"^(toString sol3)^"\n"^(string_of_list string_of_pair (get_voisins_pont sol1 (0,0)))^"\n"^(toString sol1) 
              
-(* let debugPont = msgDebug^msgFinDebug *)
+let debugPont = msgDebug^msgFinDebug
 
-let debugPont = ""
+(*let debugPont = ""*)
