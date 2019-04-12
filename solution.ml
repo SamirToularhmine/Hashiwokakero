@@ -83,9 +83,9 @@ let sol1 =
   let bvd = Bridge {isVertical = true;isDoubled = true} in
   let bhs = Bridge {isVertical = false;isDoubled = false} in
   let bhd = Bridge {isVertical = false;isDoubled = true} in[
-    [isl 8;bhd;isl 8;Nothing;Nothing];
-    [bvd;Nothing;Nothing;Nothing;Nothing];
-    [isl 8;bhs;isl 8;bhs;isl 8];
+    [isl 4;bhd;isl 5;Nothing;Nothing];
+    [bvd;Nothing;bvs;Nothing;Nothing];
+    [isl 3;bhs;isl 3;bhs;isl 1];
     [Nothing;Nothing;Nothing;Nothing;Nothing];
     [isl 4;Nothing;isl 8;Nothing;Island (importance_of_int 4)]
   ]
@@ -271,7 +271,6 @@ let get_voisins_pont sol pair =
       (get_first_island (next_pair Droite pair) Droite)@
   (get_first_island (next_pair Bas pair) Bas)
   
-let _ = print_string (string_of_cell (getCell sol1 (4,4)))
   
 let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
@@ -297,15 +296,16 @@ let string_of_list string_of liste = (List.fold_right (fun x y-> ("[")^(string_o
 (* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
 let parcours_largeur_pont sol pair =
   let rec aux pair file res =
-    let voisins = get_voisins_pont sol pair in
-    let voisins_non_atteint = List.filter (fun x -> (not(List.mem x res ))) voisins in
-    match file with
+    let voisins_pont = get_voisins_pont sol pair in
+    let voisins_non_atteint = List.filter (fun x -> (not(List.mem x res ))) voisins_pont in
+    let file' = (function |[] -> [] |h::t->t) (file@voisins_non_atteint) in
+    match file' with
     |[] -> res
-    |h::t -> aux h (t@voisins_non_atteint) (res@voisins_non_atteint)
+    |h::t -> aux h (print_string("H = "^(string_of_pair h)^" : "^(string_of_list string_of_pair (t@voisins_non_atteint))^"\n");(file')) (res@voisins_non_atteint)
   in aux pair [pair] [pair]
 
 let sol3 = replace sol1 (1,2) (isl 6)
-let msgDebug = "\n"^(toString sol3)^"\n"^(string_of_list string_of_pair (get_voisins_pont sol1 (0,0)))^"\n"^(toString sol1) 
+let msgDebug = "\n"^(toString sol3)^"\n"^(string_of_list (string_of_pair ) (parcours_largeur_pont sol1 (0,0)))^"\n"^(toString sol1) 
              
 let debugPont = msgDebug^msgFinDebug
 
