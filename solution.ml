@@ -88,32 +88,52 @@ let bv = Bridge {isVertical = true;isDoubled = false}
 
 let isl n = Island (importance_of_int n)
 
-let sol1 =
+let sol1' =
   let bvs = Bridge {isVertical = true;isDoubled = false} in
   let bvd = Bridge {isVertical = true;isDoubled = true} in
   let bhs = Bridge {isVertical = false;isDoubled = false} in
-  let bhd = Bridge {isVertical = false;isDoubled = true} in[
+  let bhd = Bridge {isVertical = false;isDoubled = true}
+  in
+  [
+
     [isl 4;bhd;isl 4;Nothing;Nothing];
     [bvd;Nothing;bvd;Nothing;Nothing];
     [isl 3;bhs;isl 5;bhs;isl 2];
     [Nothing;Nothing;bvs;Nothing;bvs];
     [Nothing;Nothing;isl 1;Nothing;isl 1]
   ]
-let _ = print_string("SOL 1 = \n"^toString sol1^"\n")
+let _ = print_string("SOL 1 = \n"^toString sol1'^"\n")
 let coimp c n =
   let imp n = importance_of_int n in
   let cfp c = coord_from_pair c in
   (cfp c,imp n)
-let puz1 =
+let puz1' =
   Puzzle.puzzle_of_list
     ([
         (coimp(4,2) 1);(coimp(2,4) 2);(coimp(2,0) 3);(coimp(0,2) 4);(coimp(0,0) 4);(coord_from_pair (2,2), importance_of_int 5);(coord_from_pair (4,4),importance_of_int 1)])         
 
   let _ = print_string("TESTNUL= \n"^toString(init_solution (puzzle_of_list[(coimp(0,0) 4);(coimp (2,2) 8);(coimp(4,2) 1);(coimp(2,4) 2);(coimp(2,0) 3);(coimp(0,2) 4)])))
-  let _ =  print_string("SOL PUZ1 = \n"^toString (init_solution puz1)^"\n")
-let getCell sol = function | (x,y) -> if(oob puz1 (x,y))then failwith"OULAH" else nth (nth sol x) y
-  
+  let _ =  print_string("SOL PUZ1PRIME = \n"^toString (init_solution puz1')^"\n")
 
+  
+let sol1 =
+   let bvs = Bridge {isVertical = true;isDoubled = false} in
+  let bvd = Bridge {isVertical = true;isDoubled = true} in
+  let bhs = Bridge {isVertical = false;isDoubled = false} in
+  let bhd = Bridge {isVertical = false;isDoubled = true}
+  in
+  [
+    [isl 4;bhd;isl 5;Nothing;Nothing];
+    [bvd;Nothing;bvs;Nothing;Nothing];
+    [isl 3;bhs;isl 3;bhs;isl 1];
+    [Nothing;Nothing;Nothing;Nothing;Nothing];
+    [isl 4;Nothing;isl 8;Nothing;Island (importance_of_int 4)]
+  ]      
+
+let puz1 =
+  Puzzle.puzzle_of_list ([(coord_from_pair (2,2), importance_of_int 4); (coord_from_pair (0,2), importance_of_int 4);(coord_from_pair (4,4),importance_of_int 4)])
+
+let getCell sol = function | (x,y) -> if(oob puz1 (x,y))then failwith"OULAH" else nth (nth sol x) y
                                         
 let c = coord_from_pair (1,1)
       
@@ -196,6 +216,7 @@ let dessinerPonts sol pair dir =
   | BridgeMet -> failwith"Probleme bridge rencontré"
                   
                   
+
 let sol2 = dessinerPonts sol1 (2,4) Gauche
          
 (* puz1here *)
@@ -215,6 +236,7 @@ let nombre_de_pont sol pair =
       |(Bridge {isVertical = _; isDoubled = double}) as bridge -> if (bon_sens (bridge,dir)) then (if (double) then 2 else 1) else 0
       | _ -> 0                                             
   in (aux Gauche)+(aux Haut)+(aux Droite)+(aux Bas)
+
 
 let count_total_ponts = fun cell -> fun sol ->
   let haut = getCell sol (fstcoord c - 1, sndcoord c) in
@@ -261,7 +283,6 @@ let get_voisins sol pair =
     | _,_ -> false in
   
   let rec get_first_island pair dir =
-    print_string ("pas bon" ^ (string_of_direction dir));
     let nextPair = next_pair dir pair in
     if (oob puz1 pair) then []
     else
@@ -304,7 +325,8 @@ let get_voisins_pont sol pair =
       (get_first_island (next_pair Droite pair) Droite)@
   (get_first_island (next_pair Bas pair) Bas)
   
-  
+let string_of_list string_of liste = (List.fold_right (fun x y-> ("[")^(string_of x)^"]"^y) (liste) "")
+                                     
 let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
   let rec iter = fun sol -> fun i ->
@@ -317,15 +339,15 @@ let solve = fun puzzle ->
         | h1::t1 ->
           match h1 with
           | Island a ->
-            let voisins = print_pair (i,j); get_voisins sol (i,j) in 
-            iter_ligne t1 (j+1)
-          | Bridge _ -> iter_ligne t1 (j+1)
-          | Nothing -> iter_ligne t1 (j+1) in
+            let voisins = get_voisins solution_vide (i,j) in
+            h1::iter_ligne t1 (j+1)
+          | Bridge _ -> h1::iter_ligne t1 (j+1)
+          | Nothing -> h1::iter_ligne t1 (j+1) in
       (iter_ligne h 0)::iter t (i+1) in
   iter solution_vide 0;;
 
-(*print_string (toString (solve puz1))*)
-let string_of_list string_of liste = (List.fold_right (fun x y-> ("[")^(string_of x)^"]"^y) (liste) "")
+print_string (toString (solve puz1))
+
 (* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
 let parcours_largeur_pont sol pair =
   let rec aux pair file res =
@@ -363,4 +385,3 @@ let msgDebug = "\n"^(string_of_list (string_of_pair ) (parcours_largeur_pont sol
              
 let debugPont = msgDebug^msgFinDebug
 
-(*let debugPont = ""*)
