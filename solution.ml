@@ -91,7 +91,7 @@ let sol1 =
   ]      
 
 let puz1 =
-  Puzzle.puzzle_of_list ([(coord_from_pair (2,2), importance_of_int 4); (coord_from_pair (0,2), importance_of_int 4);(coord_from_pair (4,4),importance_of_int 4)])
+  Puzzle.puzzle_of_list ([(coord_from_pair (0,0), importance_of_int 2);(coord_from_pair (2,2), importance_of_int 4); (coord_from_pair (0,2), importance_of_int 2); (coord_from_pair (2,4), importance_of_int 2);(coord_from_pair (4,4),importance_of_int 2)])
 
 type direction = Gauche | Haut | Droite | Bas
                                         
@@ -268,10 +268,37 @@ let get_voisins_pont sol pair =
   (get_first_island (next_pair Bas pair) Bas)
   
 let string_of_list string_of liste = (List.fold_right (fun x y-> ("[")^(string_of x)^"]"^y) (liste) "")
-                                     
+
+exception UnlinkedCoords
+
+let dir_to_coord = fun c1 -> fun c2 ->
+  match c1,c2 with
+  | (i1,j1),(i2,j2) ->
+    if i1 = i2 || j1 = j2 then
+      if i1 = i2 then
+        if j1 < j2 then Droite else Gauche
+      else
+        if i1 < i2 then Bas else Haut
+    else raise UnlinkedCoords;;
+
 let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
-  let rec iter = fun sol -> fun i ->
+  let puzzle_l = list_of_puzzle puzzle in
+  let rec aux = fun p -> fun res ->
+    match p with
+    | [] -> res
+    | h::t ->
+      let cell_pos = pair_from_coord (fst h) in
+      let voisins = get_voisins res cell_pos in
+      let rec completer_voisins = fun v -> fun res ->
+        match v with
+        | [] -> res
+        | h::t ->
+          if (est_complet (coord_from_pair cell_pos) res) || (est_complet (coord_from_pair cell_pos) res) then completer_voisins t res
+          else completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h)) in
+      aux t (completer_voisins voisins res) in
+  aux puzzle_l solution_vide;;
+  (*let rec iter = fun sol -> fun i ->
     match sol with
     | [] -> []
     | h::t ->
@@ -286,8 +313,10 @@ let solve = fun puzzle ->
           | Bridge _ -> h1::iter_ligne t1 (j+1)
           | Nothing -> h1::iter_ligne t1 (j+1) in
       (iter_ligne h 0)::iter t (i+1) in
-  iter solution_vide 0;;
+  iter solution_vide 0;;*)
 
+print_int (count_total_ponts (0,0) (solve puz1));
+print_string (string_of_bool (est_complet (coord_from_pair (2,4)) (solve puz1)));
 print_string (toString (solve puz1))
 
 (* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
