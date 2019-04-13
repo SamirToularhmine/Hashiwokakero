@@ -46,9 +46,11 @@ let rec toString = fun s ->
                      
      in (toStringLigne h) ^ "\n" ^(toString t)
                                   
-let oob puz =
-  let mxC = (Puzzle.getMaxCol puz) in
-  let mxR = (Puzzle.getMaxRow puz) in
+let oob sol =
+  let mxR = (List.length sol)-1 in
+  let mxC = if(mxR>0)then (List.length (nth sol 0) -1) else failwith"oh, n'essais pas de m'avoir avec cette solution vide!" in
+  (* let mxC = (Puzzle.getMaxCol puz) in
+   * let mxR = (Puzzle.getMaxRow puz) in *)
   function
   | (x,y) -> (x >mxR) || (x < 0) || (y > mxC) || (y < 0)
 
@@ -157,7 +159,7 @@ let puzzleTest = puzzle_of_list
                      ]
                    );;
 
-let getCell sol = function | (x,y) -> if(oob puzzleTest (x,y))then failwith"OULAH" else nth (nth sol x) y
+let getCell sol = function | (x,y) -> if(oob sol (x,y))then failwith"OULAH" else nth (nth sol x) y
                                         
 let c = coord_from_pair (1,1)
       
@@ -215,7 +217,7 @@ let dessinerPonts sol pair dir =
   let nextPair = next_pair dir pair in
   let rec aux pair dir res =
     let nextPair = next_pair dir pair in
-    if (oob puzzleTest pair) then res
+    if (oob sol pair) then res
     else
       let cell = getCell res pair in
       let actual_bridge =
@@ -253,7 +255,7 @@ let nombre_de_pont sol pair =
     | _,_ -> false in
     
     let pair' = next_pair dir pair in
-    if(oob puzzleTest pair') then 0
+    if(oob sol pair') then 0
     else
       let cell = getCell sol pair' in
       match cell with
@@ -308,7 +310,7 @@ let get_voisins sol pair =
   
   let rec get_first_island pair dir =
     let nextPair = next_pair dir pair in
-    if (oob puzzleTest pair) then []
+    if (oob sol pair) then []
     else
       let current_cell = getCell sol pair  in
 
@@ -333,7 +335,7 @@ let get_voisins_pont sol pair =
   
   let rec get_first_island pair dir =
     let nextPair = next_pair dir pair in
-    if (oob puzzleTest pair) then []
+    if (oob sol pair) then []
     else
       let current_cell = getCell sol pair  in
 
@@ -436,4 +438,8 @@ let sol3 = replace sol1 (1,2) (isl 6)
              
 (* let debugPont = msgDebug^msgFinDebug *)
 let debugPont = ""
+
+let _ = print_string ("si c'est True ça veut dire que solve marche, jeu_est_fini ? :"^(string_of_bool (jeu_est_fini (solve puzzleTest) puzzleTest))^"\n")
+
+
 
