@@ -9,3 +9,5 @@ puzzle.cmi : coordinate.cmi
 solution.cmo : puzzle.cmi coordinate.cmi solution.cmi
 solution.cmx : puzzle.cmx coordinate.cmx solution.cmi
 solution.cmi : puzzle.cmi
+test.cmo :
+test.cmx :

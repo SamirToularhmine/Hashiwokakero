@@ -140,7 +140,7 @@ let sol1 =
       
     ])*)
 
-let puzzleTest = puzzle_of_list
+let puzzleTest2 = puzzle_of_list
                    (
                      [
                        (coord_from_pair (0,0), importance_of_int 4);
@@ -158,6 +158,36 @@ let puzzleTest = puzzle_of_list
                        (coord_from_pair (6,6), importance_of_int 4)
                      ]
                    );;
+
+let puzzleTest1 = puzzle_of_list
+    (
+      [
+        (coord_from_pair (0,2), importance_of_int 2);
+        (coord_from_pair (2,0), importance_of_int 3);
+        (coord_from_pair (2,2), importance_of_int 8);
+        (coord_from_pair (2,4), importance_of_int 4);
+        (coord_from_pair (4,0), importance_of_int 3);
+        (coord_from_pair (4,2), importance_of_int 5);
+        (coord_from_pair (4,4), importance_of_int 3);
+      ]);;
+
+let puzzleTest3 = puzzle_of_list
+    (
+      [
+        (coord_from_pair (0,2), importance_of_int 1);
+        (coord_from_pair (0,4), importance_of_int 3);
+        (coord_from_pair (0,6), importance_of_int 1);
+        (coord_from_pair (1,0), importance_of_int 2);
+        (coord_from_pair (1,5), importance_of_int 1);
+        (coord_from_pair (2,2), importance_of_int 4);
+        (coord_from_pair (2,4), importance_of_int 5);
+        (coord_from_pair (3,0), importance_of_int 4);
+        (coord_from_pair (5,4), importance_of_int 1);
+        (coord_from_pair (6,0), importance_of_int 3);
+        (coord_from_pair (6,2), importance_of_int 3);
+        (coord_from_pair (6,5), importance_of_int 2)
+      ]
+    );;
 
 let getCell sol = function | (x,y) -> if(oob sol (x,y))then failwith"OULAH" else nth (nth sol x) y
                                         
@@ -374,14 +404,38 @@ let solve = fun puzzle ->
     | h::t ->
       let cell_pos = pair_from_coord (fst h) in
       let voisins = get_voisins res cell_pos in
+      let nb_voisins = List.length voisins in
+      let importance = int_of_importance (snd h) in
+      let ponts_min = fun (x,y) ->
+        if x mod 2 = 0 then
+          if x/2 = y then x
+          else if x/2 > y  then 1
+          else 0
+        else
+        if x <= y then 0 else
+          int_of_float (ceil (float_of_int (importance) /. 2.0)) in
       let rec completer_voisins = fun v -> fun res ->
         match v with
         | [] -> res
         | h::t ->
-          if (est_complet (coord_from_pair cell_pos) res) || (est_complet (coord_from_pair h) res) then completer_voisins t res
-          else completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h)) in
+          if (est_complet (coord_from_pair cell_pos) res) || (est_complet (coord_from_pair h) res) then
+            completer_voisins t res
+          else
+            let ile_voisine = getCell res h in
+            if importance >= (int_of_island ile_voisine) && List.length (get_voisins res h) = 1 then
+              completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h))
+            else
+            if ponts_min (importance, nb_voisins) > 0 then
+              completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h)) 
+            else
+              res in
       aux t (completer_voisins voisins res) in
-  aux puzzle_l solution_vide;;
+  let rec apply = fun i -> fun res ->
+    if i = 0 then res
+    else
+    apply  (i-1) (aux puzzle_l res) in
+    apply 3 solution_vide;;
+  
   (*let rec iter = fun sol -> fun i ->
     match sol with
     | [] -> []
@@ -399,7 +453,7 @@ let solve = fun puzzle ->
       (iter_ligne h 0)::iter t (i+1) in
   iter solution_vide 0;;*)
 
-print_string (toString (solve puzzleTest))
+print_string (toString (solve puzzleTest3))
 
 (* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
 let parcours_largeur_pont sol pair =
@@ -439,7 +493,7 @@ let sol3 = replace sol1 (1,2) (isl 6)
 (* let debugPont = msgDebug^msgFinDebug *)
 let debugPont = ""
 
-let _ = print_string ("si c'est True ça veut dire que solve marche, jeu_est_fini ? :"^(string_of_bool (jeu_est_fini (solve puzzleTest) puzzleTest))^"\n")
+let _ = print_string ("si c'est True ça veut dire que solve marche, jeu_est_fini ? :"^(string_of_bool (jeu_est_fini (solve puzzleTest3) puzzleTest3))^"\n")
 
 
 
