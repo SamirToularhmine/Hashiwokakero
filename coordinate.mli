@@ -9,4 +9,5 @@ val (>~~) : coordinate -> coordinate -> bool
       
 val filtercoord : (coordinate -> coordinate -> bool) -> coordinate -> coordinate -> coordinate
 val toString : coordinate -> string
+val compare : coordinate -> coordinate -> int
 

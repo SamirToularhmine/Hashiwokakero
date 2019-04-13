@@ -34,12 +34,9 @@ let puzzleTest = puzzle_of_list
                        (coord_from_pair (6,6), importance_of_int 4)
                      ]
                    );;
-
-let solution = Solution.init_solution puzzleTest;;
-
 (*let _ = print_string (Solution.toString solution);;*)
 
-let _ = print_string (Solution.debugPont);;
+(* let _ = print_string (Solution.debugPont);; *)
 
 
 (*let puzzle2 =

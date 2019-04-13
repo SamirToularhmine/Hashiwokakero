@@ -17,10 +17,21 @@ let list_of_puzzle = fun p ->
   | Puzzle p -> p
 
 let getMaxRow = fun p ->
-  Coordinate.fstcoord (fst (reduction (fun x -> fun y -> if (fst x) >~ (fst y) then x else y) p (List.hd (list_of_puzzle p))))
+  Coordinate.fstcoord (
+    fst (reduction (fun x -> fun y ->
+        if (fst x) >~ (fst y) then x
+        else y) p (List.hd (list_of_puzzle p)))
+  )
 
 let getMaxCol = fun p ->
-  Coordinate.fstcoord (fst (reduction (fun x -> fun y -> if (fst x) >~~ (fst y) then x else y) p (List.hd (list_of_puzzle p))))
+  Coordinate.sndcoord (
+    fst (reduction (fun x -> fun y ->
+        if (fst x) >~~ (fst y) then x
+        else y) p (List.hd (list_of_puzzle p)))
+  )
+let sort = fun p ->
+  let liste = list_of_puzzle p in
+  puzzle_of_list (List.sort (fun x -> fun y -> compare (fst x) (fst y)) liste)
 
 
 

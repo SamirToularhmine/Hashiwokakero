@@ -11,3 +11,4 @@ val int_of_importance : importance -> int
 val list_of_puzzle : puzzle -> (Coordinate.coordinate * importance) list
 val getMaxCol : puzzle -> int
 val getMaxRow : puzzle -> int
+val sort : puzzle -> puzzle

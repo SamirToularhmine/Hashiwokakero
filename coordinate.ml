@@ -21,4 +21,13 @@ let toString = fun c ->
   match c with
   | Coordinate c -> "(" ^ (string_of_int (fst c)) ^ "," ^ (string_of_int (snd c)) ^ ")"
 
-
+let compare = fun c1 -> fun c2 ->
+  let c11 = fstcoord c1 in
+  let c12 = sndcoord c1 in
+  let c21 = fstcoord c2 in
+  let c22 = sndcoord c2 in
+  if c11 > c21 then 1
+  else if c11 = c21 then
+    if c12 > c22 then 1 else
+      if c12 = c22 then 0 else -1
+  else -1;;
