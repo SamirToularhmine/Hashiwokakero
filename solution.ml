@@ -189,6 +189,25 @@ let puzzleTest3 = puzzle_of_list
       ]
     );;
 
+let puzzleTest4 = puzzle_of_list
+    (
+      [
+        (coord_from_pair (0,0), importance_of_int 2);
+        (coord_from_pair (0,2), importance_of_int 3);
+        (coord_from_pair (0,4), importance_of_int 1);
+        (coord_from_pair (0,6), importance_of_int 1);
+        (coord_from_pair (1,1), importance_of_int 2);
+        (coord_from_pair (1,3), importance_of_int 1);
+        (coord_from_pair (3,2), importance_of_int 1);
+        (coord_from_pair (4,1), importance_of_int 3);
+        (coord_from_pair (4,3), importance_of_int 5);
+        (coord_from_pair (4,6), importance_of_int 2);
+        (coord_from_pair (6,0), importance_of_int 2);
+        (coord_from_pair (6,3), importance_of_int 4);
+        (coord_from_pair (6,5), importance_of_int 1)
+      ]
+    );;
+
 let getCell sol = function | (x,y) -> if(oob sol (x,y))then failwith"OULAH" else nth (nth sol x) y
                                         
 let c = coord_from_pair (1,1)
@@ -434,7 +453,7 @@ let solve = fun puzzle ->
     if i = 0 then res
     else
     apply  (i-1) (aux puzzle_l res) in
-    apply 3 solution_vide;;
+    apply 10 solution_vide;;
   
   (*let rec iter = fun sol -> fun i ->
     match sol with
@@ -453,7 +472,7 @@ let solve = fun puzzle ->
       (iter_ligne h 0)::iter t (i+1) in
   iter solution_vide 0;;*)
 
-print_string (toString (solve puzzleTest3))
+print_string (toString (solve puzzleTest4))
 
 (* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
 let parcours_largeur_pont sol pair =
