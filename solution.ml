@@ -1,10 +1,18 @@
 open Puzzle
 open Coordinate
 open List
+
 type bridge = { isVertical : bool; isDoubled : bool}
 type cell = Nothing | Island of Puzzle.importance | Bridge of bridge
 type solution = cell list list
 type direction = Gauche | Haut | Droite | Bas
+
+exception NotAnIsland
+exception OutOfBounds
+exception IslandMet
+exception BridgeMet
+exception UnlinkedCoords
+                               
 let string_of_bridge b =
   match (b.isDoubled),(b.isVertical) with
   | (false,false) -> "---------"
@@ -16,22 +24,21 @@ let string_of_pair =
   function
   | (x,y) -> ("("^(string_of_int(x)) ^ "," ^ (string_of_int(y))^")")
            
-let print_pair pair= print_string (string_of_pair pair)
+let print_pair = fun pair -> print_string (string_of_pair pair)
 
 let string_of_cell = function
   | Nothing -> "[       ]"
-  | Island x -> ("[Île - " ^ (string_of_int (int_of_importance x))) ^ "]"
+  | Island x -> ("[Ile - " ^ (string_of_int (int_of_importance x))) ^ "]"
   | (Bridge b) -> string_of_bridge b (*^ (string_of_bool b.isVertical) ^ " : " ^ (string_of_bool b.isDoubled)*)
-
-
+                
 let importance_of_island = function
   | Island imp -> imp
-  | Nothing -> failwith"pas d'importance sur Nothing"
-  |Bridge b -> failwith"pas d'importance sur Bridge"
+  | Nothing -> raise NotAnIsland
+  | Bridge b -> raise NotAnIsland
                  
 let int_of_island = function
   | Island imp -> int_of_importance imp
-  | _ -> failwith" pas de int sur Nothing ou Bridge"
+  | _ -> raise NotAnIsland
 
 let rec toString = fun s ->
   match s with
@@ -42,17 +49,15 @@ let rec toString = fun s ->
        | [] -> ""
        | h1::t1 ->
          match h1 with
-         | cell -> (string_of_cell h1) ^ toStringLigne t1
-                     
-     in (toStringLigne h) ^ "\n" ^(toString t)
+         | cell -> (string_of_cell h1) ^ toStringLigne t1 in
+     (toStringLigne h) ^ "\n" ^(toString t)
                                   
 let oob sol =
   let mxR = (List.length sol)-1 in
-  let mxC = if(mxR>0)then (List.length (nth sol 0) -1) else failwith"oh, n'essais pas de m'avoir avec cette solution vide!" in
-  (* let mxC = (Puzzle.getMaxCol puz) in
-   * let mxR = (Puzzle.getMaxRow puz) in *)
+  let mxC = if (mxR > 0) then (List.length (nth sol 0) -1)
+            else failwith "La solution est vide !" in
   function
-  | (x,y) -> (x >mxR) || (x < 0) || (y > mxC) || (y < 0)
+  | (x,y) -> (x > mxR) || (x < 0) || (y > mxC) || (y < 0)
 
 let init_solution = fun p ->
   let liste = list_of_puzzle (Puzzle.sort p) in
@@ -64,12 +69,15 @@ let init_solution = fun p ->
         match l with
         | [] -> []
         | h::t ->
-          if Coordinate.fstcoord ((fst)h) = i then h::(iles i t) else (iles i t) in
-    if i > maxRow then [] else
+           if Coordinate.fstcoord ((fst)h) = i then h::(iles i t)
+           else (iles i t) in
+    if i > maxRow then []
+    else
       let rec creerLigne = fun l -> fun j ->
         match l with
         | [] ->
-          if j <= maxCol then (Nothing)::(creerLigne l (j+1)) else []
+           if j <= maxCol then (Nothing)::(creerLigne l (j+1))
+           else []
         | h::t ->
           let coord = fst h in
           let importance = snd h in
@@ -93,7 +101,6 @@ let sol1' =
   let bhd = Bridge {isVertical = false;isDoubled = true}
   in
   [
-
     [isl 4;bhd;isl 4;Nothing;Nothing];
     [bvd;Nothing;bvd;Nothing;Nothing];
     [isl 3;bhs;isl 5;bhs;isl 2];
@@ -105,6 +112,7 @@ let coimp c n =
   let imp n = importance_of_int n in
   let cfp c = coord_from_pair c in
   (cfp c,imp n)
+  
 let puz1' =
   Puzzle.puzzle_of_list
     ([
@@ -115,7 +123,7 @@ let puz1' =
 
   
 let sol1 =
-   let bvs = Bridge {isVertical = true;isDoubled = false} in
+  let bvs = Bridge {isVertical = true;isDoubled = false} in
   let bvd = Bridge {isVertical = true;isDoubled = true} in
   let bhs = Bridge {isVertical = false;isDoubled = false} in
   let bhd = Bridge {isVertical = false;isDoubled = true}
@@ -141,83 +149,82 @@ let sol1 =
     ])*)
 
 let puzzleTest2 = puzzle_of_list
-                   (
-                     [
-                       (coord_from_pair (0,0), importance_of_int 4);
-                       (coord_from_pair (0,3), importance_of_int 4);
-                       (coord_from_pair (0,6), importance_of_int 3);
-                       (coord_from_pair (2,1), importance_of_int 1);
-                       (coord_from_pair (2,3), importance_of_int 4);
-                       (coord_from_pair (2,5), importance_of_int 2);
-                       (coord_from_pair (3,0), importance_of_int 4);
-                       (coord_from_pair (3,6), importance_of_int 5);
-                       (coord_from_pair (5,0), importance_of_int 2);
-                       (coord_from_pair (5,5), importance_of_int 1);
-                       (coord_from_pair (6,2), importance_of_int 1);
-                       (coord_from_pair (6,4), importance_of_int 3);
-                       (coord_from_pair (6,6), importance_of_int 4)
-                     ]
-                   );;
-
+                    (
+                      [
+                        (coord_from_pair (0,0), importance_of_int 4);
+                        (coord_from_pair (0,3), importance_of_int 4);
+                        (coord_from_pair (0,6), importance_of_int 3);
+                        (coord_from_pair (2,1), importance_of_int 1);
+                        (coord_from_pair (2,3), importance_of_int 4);
+                        (coord_from_pair (2,5), importance_of_int 2);
+                        (coord_from_pair (3,0), importance_of_int 4);
+                        (coord_from_pair (3,6), importance_of_int 5);
+                        (coord_from_pair (5,0), importance_of_int 2);
+                        (coord_from_pair (5,5), importance_of_int 1);
+                        (coord_from_pair (6,2), importance_of_int 1);
+                        (coord_from_pair (6,4), importance_of_int 3);
+                        (coord_from_pair (6,6), importance_of_int 4)
+                      ]
+                    )
+                
 let puzzleTest1 = puzzle_of_list
-    (
-      [
-        (coord_from_pair (0,2), importance_of_int 2);
-        (coord_from_pair (2,0), importance_of_int 3);
-        (coord_from_pair (2,2), importance_of_int 8);
-        (coord_from_pair (2,4), importance_of_int 4);
-        (coord_from_pair (4,0), importance_of_int 3);
-        (coord_from_pair (4,2), importance_of_int 5);
-        (coord_from_pair (4,4), importance_of_int 3);
-      ]);;
+                    (
+                      [
+                        (coord_from_pair (0,2), importance_of_int 2);
+                        (coord_from_pair (2,0), importance_of_int 3);
+                        (coord_from_pair (2,2), importance_of_int 8);
+                        (coord_from_pair (2,4), importance_of_int 4);
+                        (coord_from_pair (4,0), importance_of_int 3);
+                        (coord_from_pair (4,2), importance_of_int 5);
+                        (coord_from_pair (4,4), importance_of_int 3);
+                    ]);;
 
 let puzzleTest3 = puzzle_of_list
-    (
-      [
-        (coord_from_pair (0,2), importance_of_int 1);
-        (coord_from_pair (0,4), importance_of_int 3);
-        (coord_from_pair (0,6), importance_of_int 1);
-        (coord_from_pair (1,0), importance_of_int 2);
-        (coord_from_pair (1,5), importance_of_int 1);
-        (coord_from_pair (2,2), importance_of_int 4);
-        (coord_from_pair (2,4), importance_of_int 5);
-        (coord_from_pair (3,0), importance_of_int 4);
-        (coord_from_pair (5,4), importance_of_int 1);
-        (coord_from_pair (6,0), importance_of_int 3);
-        (coord_from_pair (6,2), importance_of_int 3);
-        (coord_from_pair (6,5), importance_of_int 2)
-      ]
-    );;
+                    (
+                      [
+                        (coord_from_pair (0,2), importance_of_int 1);
+                        (coord_from_pair (0,4), importance_of_int 3);
+                        (coord_from_pair (0,6), importance_of_int 1);
+                        (coord_from_pair (1,0), importance_of_int 2);
+                        (coord_from_pair (1,5), importance_of_int 1);
+                        (coord_from_pair (2,2), importance_of_int 4);
+                        (coord_from_pair (2,4), importance_of_int 5);
+                        (coord_from_pair (3,0), importance_of_int 4);
+                        (coord_from_pair (5,4), importance_of_int 1);
+                        (coord_from_pair (6,0), importance_of_int 3);
+                        (coord_from_pair (6,2), importance_of_int 3);
+                        (coord_from_pair (6,5), importance_of_int 2)
+                      ]
+                    );;
 
 let puzzleTest4 = puzzle_of_list
-    (
-      [
-        (coord_from_pair (0,0), importance_of_int 2);
-        (coord_from_pair (0,2), importance_of_int 3);
-        (coord_from_pair (0,4), importance_of_int 1);
-        (coord_from_pair (0,6), importance_of_int 1);
-        (coord_from_pair (1,1), importance_of_int 2);
-        (coord_from_pair (1,3), importance_of_int 1);
-        (coord_from_pair (3,2), importance_of_int 1);
-        (coord_from_pair (4,1), importance_of_int 3);
-        (coord_from_pair (4,3), importance_of_int 5);
-        (coord_from_pair (4,6), importance_of_int 2);
-        (coord_from_pair (6,0), importance_of_int 2);
-        (coord_from_pair (6,3), importance_of_int 4);
-        (coord_from_pair (6,5), importance_of_int 1)
-      ]
-    );;
+                    (
+                      [
+                        (coord_from_pair (0,0), importance_of_int 2);
+                        (coord_from_pair (0,2), importance_of_int 3);
+                        (coord_from_pair (0,4), importance_of_int 1);
+                        (coord_from_pair (0,6), importance_of_int 1);
+                        (coord_from_pair (1,1), importance_of_int 2);
+                        (coord_from_pair (1,3), importance_of_int 1);
+                        (coord_from_pair (3,2), importance_of_int 1);
+                        (coord_from_pair (4,1), importance_of_int 3);
+                        (coord_from_pair (4,3), importance_of_int 5);
+                        (coord_from_pair (4,6), importance_of_int 2);
+                        (coord_from_pair (6,0), importance_of_int 2);
+                        (coord_from_pair (6,3), importance_of_int 4);
+                        (coord_from_pair (6,5), importance_of_int 1)
+                      ]
+                    );;
 
-let getCell sol = function | (x,y) -> if(oob sol (x,y))then failwith"OULAH" else nth (nth sol x) y
-                                        
+let getCell sol = function
+  | (x,y) -> if (oob sol (x,y)) then raise OutOfBounds else nth (nth sol x) y
+                                    
 let c = coord_from_pair (1,1)
-      
-
-                                        
+                                              
 let msgFinDebug = ("\n ---------FIN DEBUG----------- \n")
 
 let next_pair dir pair = 
-  match dir,pair with
+  match (dir,pair) with
   | Gauche,(x,y) -> (x,y-1)
   | Haut,(x,y) -> (x-1,y)
   | Droite,(x,y) -> (x,y+1)
@@ -231,7 +238,7 @@ let string_of_direction = fun d ->
   | Droite -> "Droite"
     
 let replace sol pair cell =
-  let getIndex l l' = ((length l) - (length l'))in
+  let getIndex l l' = ((length l) - (length l')) in
   let l = sol in
   let c = pair in
   let v = cell in
@@ -247,16 +254,9 @@ let replace sol pair cell =
         | [] -> res2
         | h::t2 ->
           let j = (getInl2 l2) in
-          aux2 t2 c v (res2@[if (c=(i,j)) then v else h]) in
+          aux2 t2 c v (res2@[if (c = (i,j)) then v else h]) in
       aux1 t1 c v ((aux2 l2 c v [])::res1) in
   List.rev (aux1 l c v [])
-
-
-
-    
-exception OutOfBounds
-exception IslandMet
-exception BridgeMet
         
 let dessinerPonts sol pair dir =
   let bvs = Bridge {isVertical = true; isDoubled = false} in
@@ -288,10 +288,8 @@ let dessinerPonts sol pair dir =
       | _,_ -> failwith"je pensais pas en arriver là :("
                  
   in try aux nextPair dir sol with
-  | BridgeMet -> failwith"Probleme bridge rencontré"
+  | BridgeMet -> failwith "Problème pont rencontré"
                   
-                  
-
 let sol2 = dessinerPonts sol1 (2,4) Gauche
          
 (* puz1here *)
@@ -311,7 +309,6 @@ let nombre_de_pont sol pair =
       |(Bridge {isVertical = _; isDoubled = double}) as bridge -> if (bon_sens (bridge,dir)) then (if (double) then 2 else 1) else 0
       | _ -> 0                                             
   in (aux Gauche)+(aux Haut)+(aux Droite)+(aux Bas)
-
 
 let count_total_ponts = fun cell -> fun sol ->
   let haut = getCell sol (fstcoord c - 1, sndcoord c) in
@@ -349,7 +346,6 @@ let ponts_restants = fun c -> fun sol ->
   let total_ponts = count_total_ponts c sol in
   importance - total_ponts
   
-
 let get_voisins sol pair =
   let bon_sens_pas_double =
     function
@@ -391,9 +387,7 @@ let get_voisins_pont sol pair =
     match current_cell with
     |Nothing ->  []
     |(Bridge b') as b -> if (bon_sens (b,dir)) then (get_first_island nextPair dir) else []
-    |(Island imp)-> [pair]
-    
-  in
+    |(Island imp)-> [pair] in
 
   (get_first_island (next_pair Gauche pair) Gauche)@
     (get_first_island (next_pair Haut pair) Haut)@
@@ -401,8 +395,6 @@ let get_voisins_pont sol pair =
   (get_first_island (next_pair Bas pair) Bas)
   
 let string_of_list string_of liste = (List.fold_right (fun x y-> ("[")^(string_of x)^"]"^y) (liste) "")
-
-exception UnlinkedCoords
 
 let dir_to_coord = fun c1 -> fun c2 ->
   match c1,c2 with
@@ -453,7 +445,7 @@ let solve = fun puzzle ->
     if i = 0 then res
     else
     apply  (i-1) (aux puzzle_l res) in
-    apply 10 solution_vide;;
+    apply (List.length puzzle_l) solution_vide;;
   
   (*let rec iter = fun sol -> fun i ->
     match sol with
@@ -472,7 +464,7 @@ let solve = fun puzzle ->
       (iter_ligne h 0)::iter t (i+1) in
   iter solution_vide 0;;*)
 
-print_string (toString (solve puzzleTest4))
+print_string (toString (solve puzzleTest1))
 
 (* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
 let parcours_largeur_pont sol pair =
