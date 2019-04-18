@@ -421,11 +421,12 @@ let get_voisins sol pair puz =
     |Nothing -> get_first_island nextPair dir
     |(Bridge b') as b -> if (bon_sens_pas_double (b,dir)) then (get_first_island nextPair dir) else []
     |(Island imp) ->if (est_complet (coord_from_pair pair') sol) then [] else
+                      if(est_complet (coord_from_pair pair) sol) then [] else
       let compo_connexe =
         let sol_sim = dessinerPonts sol pair dir in
         let liste_cw = parcours_largeur_pont sol_sim pair' in
         
-        false && (jeu_est_fini sol_sim puz)  
+        (test_est_composante_connexe liste_cw sol_sim) && (not(jeu_est_fini sol_sim puz))  
 
       in if (compo_connexe) then [] else [pair']
     
