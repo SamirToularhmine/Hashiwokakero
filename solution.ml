@@ -522,7 +522,6 @@ let solve = fun puzzle ->
       (iter_ligne h 0)::iter t (i+1) in
   iter solution_vide 0;;*)
 
-(* print_string (toString (solve puzzleTest4));; *)
 
 
 (* let _ = print_string (toString (solve puzzleTest4)) *)
