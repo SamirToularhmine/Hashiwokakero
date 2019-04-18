@@ -208,6 +208,59 @@ let puzzleTest4 = puzzle_of_list
       ]
     );;
 
+let puzzleTest5 = puzzle_of_list
+    (
+      [
+        (coord_from_pair (0,1), importance_of_int 2);
+        (coord_from_pair (0,3), importance_of_int 6);
+        (coord_from_pair (0,6), importance_of_int 3);
+        (coord_from_pair (2,0), importance_of_int 1);
+        (coord_from_pair (2,3), importance_of_int 6);
+        (coord_from_pair (2,5), importance_of_int 2);
+        (coord_from_pair (3,4), importance_of_int 1);
+        (coord_from_pair (3,6), importance_of_int 3);
+        (coord_from_pair (4,0), importance_of_int 1);
+        (coord_from_pair (5,4), importance_of_int 1);
+        (coord_from_pair (5,6), importance_of_int 2);
+        (coord_from_pair (6,0), importance_of_int 3);
+        (coord_from_pair (6,3), importance_of_int 5);
+        (coord_from_pair (6,5), importance_of_int 2)
+      ]
+    );;
+
+let puzzleTest6 = puzzle_of_list
+    (
+      [
+        (coord_from_pair (0,0), importance_of_int 4);
+        (coord_from_pair (0,2), importance_of_int 4);
+        (coord_from_pair (0,6), importance_of_int 2);
+        (coord_from_pair (0,8), importance_of_int 3);
+        (coord_from_pair (2,0), importance_of_int 6);
+        (coord_from_pair (2,2), importance_of_int 8);
+        (coord_from_pair (2,4), importance_of_int 4);
+        (coord_from_pair (2,7), importance_of_int 1);
+        (coord_from_pair (3,6), importance_of_int 1);
+        (coord_from_pair (3,8), importance_of_int 3);
+        (coord_from_pair (4,2), importance_of_int 2);
+        (coord_from_pair (4,4), importance_of_int 2);
+        (coord_from_pair (4,7), importance_of_int 1);
+        (coord_from_pair (5,0), importance_of_int 4);
+        (coord_from_pair (5,3), importance_of_int 3);
+        (coord_from_pair (5,5), importance_of_int 2);
+        (coord_from_pair (6,6), importance_of_int 2);
+        (coord_from_pair (6,8), importance_of_int 3);
+        (coord_from_pair (7,1), importance_of_int 1);
+        (coord_from_pair (7,3), importance_of_int 5);
+        (coord_from_pair (7,5), importance_of_int 4);
+        (coord_from_pair (8,0), importance_of_int 3);
+        (coord_from_pair (8,2), importance_of_int 3);
+        (coord_from_pair (8,4), importance_of_int 2);
+        (coord_from_pair (8,6), importance_of_int 3);
+        (coord_from_pair (8,8), importance_of_int 2)
+      ]
+    );;
+
+
 let getCell sol = function | (x,y) -> if(oob sol (x,y))then failwith"OULAH" else nth (nth sol x) y
                                         
 let c = coord_from_pair (1,1)
@@ -497,8 +550,8 @@ let solve = fun puzzle ->
   let rec apply = fun i -> fun res ->
     if i = 0 then res
     else apply (i-1) (aux puzzle_l res) in
-  apply 1 solution_vide;;
- (* let rec apply = fun stop -> fun res ->
+  apply 30 solution_vide;;
+  (*let rec apply = fun stop -> fun res ->
     if stop then res
     else
       apply (jeu_est_fini res puzzle) (aux puzzle_l res) in
@@ -529,7 +582,7 @@ let solve = fun puzzle ->
 
              
 (* let debugPont = msgDebug^msgFinDebug *)
-let puztest = puzzleTest3
+let puztest = puzzleTest6
 let soltest = init_solution puztest
 let _ = print_string ((string_of_bool (jeu_est_fini soltest puztest))^"\n")
 let solvetest = solve puztest
