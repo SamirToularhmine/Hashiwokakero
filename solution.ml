@@ -233,7 +233,7 @@ let puzzleTest6 = puzzle_of_list
       [
         (coord_from_pair (0,0), importance_of_int 4);
         (coord_from_pair (0,2), importance_of_int 4);
-        (coord_from_pair (0,6), importance_of_int 2);
+        (coord_from_pair (0,5), importance_of_int 2);
         (coord_from_pair (0,8), importance_of_int 3);
         (coord_from_pair (2,0), importance_of_int 6);
         (coord_from_pair (2,2), importance_of_int 8);
@@ -626,5 +626,5 @@ let rec loop = fun b ->
   loop b in
 loop ();;
 
-(* main();; *)
+(*main();;*)
 
