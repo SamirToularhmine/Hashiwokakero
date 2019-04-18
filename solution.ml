@@ -563,9 +563,12 @@ let main = fun unit ->
       | [] -> print_string "bah yes on passe là"; displaySol t
       | h1::t1 ->
         match h1 with
-        | Nothing -> print_string "bah yes on est tjrs là"; displayLine t1 
-        | Island i -> Graphics.draw_circle 250 250 25; displayLine t1
-        | Bridge { isVertical = iv; isDoubled = id } -> Graphics.draw_circle 300 250 25; displayLine t1 in
+        | Nothing ->
+          print_string "bah yes on est tjrs là\n"; displayLine t1 
+        | Island i ->
+          Graphics.draw_circle 250 250 25; displayLine t1
+        | Bridge { isVertical = iv; isDoubled = id } ->
+          Graphics.draw_circle 300 250 25; displayLine t1 in
     displayLine h in 
   displaySol solution;
     let rec loop = fun b ->
