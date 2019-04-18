@@ -36,7 +36,7 @@ let puzzleTest = puzzle_of_list
                    );;
 (*let _ = print_string (Solution.toString solution);;*)
 
-(* let _ = print_string (Solution.debugPont);; *)
+let _ = print_string (Solution.debugPont);;
 
 
 (*let puzzle2 =

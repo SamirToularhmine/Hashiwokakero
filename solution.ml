@@ -346,35 +346,11 @@ let ponts_restants = fun c -> fun sol ->
     match cell with
     | Island a -> int_of_importance a
     | _ -> failwith "Pas une ile !" in
-  let total_ponts = count_total_ponts c sol in
+  let total_ponts = nombre_de_pont sol (pair_from_coord c) in
   importance - total_ponts
+
+
   
-
-let get_voisins sol pair =
-  let bon_sens_pas_double =
-    function
-    | Bridge {isVertical = true; isDoubled = false },(Haut|Bas) -> true
-    | Bridge {isVertical = false; isDoubled = false },(Gauche|Droite) -> true
-    | _,_ -> false in
-  
-  let rec get_first_island pair dir =
-    let nextPair = next_pair dir pair in
-    if (oob sol pair) then []
-    else
-      let current_cell = getCell sol pair  in
-
-    match current_cell with
-    |Nothing -> get_first_island nextPair dir
-    |(Bridge b') as b -> if (bon_sens_pas_double (b,dir)) then (get_first_island nextPair dir) else []
-    |(Island imp) -> if (est_complet (coord_from_pair pair) sol) then [] else [pair]
-    (*est_complet (coord_from_pair pair) sol*)
-  in
-
-  (get_first_island (next_pair Gauche pair) Gauche)@
-    (get_first_island (next_pair Haut pair) Haut)@
-      (get_first_island (next_pair Droite pair) Droite)@
-  (get_first_island (next_pair Bas pair) Bas)
-
 let get_voisins_pont sol pair =
   let bon_sens =
     function
@@ -399,6 +375,68 @@ let get_voisins_pont sol pair =
     (get_first_island (next_pair Haut pair) Haut)@
       (get_first_island (next_pair Droite pair) Droite)@
   (get_first_island (next_pair Bas pair) Bas)
+
+
+  (* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
+let parcours_largeur_pont sol pair =
+  let rec aux pair file res =
+    let voisins_pont = get_voisins_pont sol pair in
+    let voisins_non_atteint = List.filter (fun x -> (not(List.mem x res ))) voisins_pont in
+    let file' = (function |[] -> [] |h::t->t) (file@voisins_non_atteint) in
+    match file' with
+    |[] -> res
+    |h::t -> aux h (file') (res@voisins_non_atteint)
+  in aux pair [pair] [pair]
+
+  
+(* la liste de paire donnée en paramètre doit être issue d'un parcours en largeur*)    
+let test_est_composante_connexe liste sol =
+  (List.length (List.filter (fun x -> est_complet (coord_from_pair x) sol) liste)) = (List.length liste)
+
+let jeu_est_fini sol puz =
+  let puz' = list_of_puzzle puz in 
+  let liste_finale = 
+    let first_pair = pair_from_coord(fst ((function |[]->failwith"puzzle vide"|h::t->h) puz')) in
+
+    parcours_largeur_pont sol first_pair in
+  ((List.length liste_finale) = (List.length puz')) && (test_est_composante_connexe liste_finale sol)
+
+  
+let get_voisins sol pair puz =
+  
+  let bon_sens_pas_double =
+    function
+    | Bridge {isVertical = true; isDoubled = false },(Haut|Bas) -> true
+    | Bridge {isVertical = false; isDoubled = false },(Gauche|Droite) -> true
+    | _,_ -> false in
+  
+  let rec get_first_island pair' dir =
+    
+    let nextPair = next_pair dir pair' in
+    if (oob sol pair') then []
+    else
+      let current_cell = getCell sol pair' in
+
+    match current_cell with
+    |Nothing -> get_first_island nextPair dir
+    |(Bridge b') as b -> if (bon_sens_pas_double (b,dir)) then (get_first_island nextPair dir) else []
+    |(Island imp) ->if (est_complet (coord_from_pair pair') sol) then [] else
+      let compo_connexe =
+        let sol_sim = dessinerPonts sol pair dir in
+        let liste_cw = parcours_largeur_pont sol_sim pair' in
+        
+        false && (jeu_est_fini sol_sim puz)  
+
+      in if (compo_connexe) then [] else [pair']
+    
+  in
+
+  (get_first_island (next_pair Gauche pair) Gauche)@
+    (get_first_island (next_pair Haut pair) Haut)@
+      (get_first_island (next_pair Droite pair) Droite)@
+  (get_first_island (next_pair Bas pair) Bas)
+
+
   
 let string_of_list string_of liste = (List.fold_right (fun x y-> ("[")^(string_of x)^"]"^y) (liste) "")
 
@@ -413,41 +451,12 @@ let dir_to_coord = fun c1 -> fun c2 ->
       else
         if i1 < i2 then Bas else Haut
     else raise UnlinkedCoords;;
-
-(* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
-let parcours_largeur_pont sol pair =
-  let rec aux pair file res =
-    let voisins_pont = get_voisins_pont sol pair in
-    let voisins_non_atteint = List.filter (fun x -> (not(List.mem x res ))) voisins_pont in
-    let file' = (function |[] -> [] |h::t->t) (file@voisins_non_atteint) in
-    match file' with
-    |[] -> res
-    |h::t -> aux h (file') (res@voisins_non_atteint)
-  in aux pair [pair] [pair]
+  
 
 
-   
-(* la liste de paire donnée en paramètre doit être issue d'un parcours en largeur*)    
-let test_est_composante_connexe liste sol =
-  (List.length (List.filter (fun x -> est_complet (coord_from_pair x) sol) liste)) = (List.length liste)
-let jeu_est_fini sol puz =
-  let puz' = list_of_puzzle puz in 
-  let liste_finale =
-    let first_pair = pair_from_coord(fst ((function |[]->failwith"puzzle vide"|h::t->h) puz')) in
-
-    parcours_largeur_pont sol first_pair in
-  ((List.length liste_finale) = (List.length puz')) && (test_est_composante_connexe liste_finale sol)
     
-(*let _ =
-  let pair = (2,2) in
-  let cell = getCell sol1 pair in
-  let nbPont = string_of_int (nombre_de_pont sol1 pair) in
-  print_string("PAIRE ="^(string_of_pair pair)^" : "^(string_of_cell cell)^", nombre de pont = "^nbPont^"\n")  
 
-let arb_rec = parcours_largeur_pont sol1 (2,2)
-let _ = print_string ((string_of_bool (jeu_est_fini sol1 puz1))^"\n")
-let sol3 = replace sol1 (1,2) (isl 6)
-  let msgDebug = "\n"^(string_of_list (string_of_pair ) (parcours_largeur_pont sol1 (0,0)))^"\n"^(toString sol1)*)
+
 
 let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
@@ -457,7 +466,7 @@ let solve = fun puzzle ->
     | [] -> res
     | h::t ->
       let cell_pos = pair_from_coord (fst h) in
-      let voisins = get_voisins res cell_pos in
+      let voisins = get_voisins res cell_pos puzzle in
       let nb_voisins = List.length voisins in
       let importance = int_of_importance (snd h) in
       let ponts_min = fun (x,y) ->
@@ -476,7 +485,7 @@ let solve = fun puzzle ->
             completer_voisins t res
           else
             let ile_voisine = getCell res h in
-            if importance >= (int_of_island ile_voisine) && List.length (get_voisins res h) = 1 then
+            if importance >= (int_of_island ile_voisine) && List.length (get_voisins res h puzzle) = 1 then
               completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h))
             else
             if ponts_min (importance, nb_voisins) > 0 then
@@ -490,30 +499,21 @@ let solve = fun puzzle ->
       apply (jeu_est_fini res puzzle) (aux puzzle_l res) in
   apply (jeu_est_fini solution_vide puzzle) solution_vide;;
   
-  (*let rec iter = fun sol -> fun i ->
-    match sol with
-    | [] -> []
-    | h::t ->
-      let rec iter_ligne = fun ligne -> fun j ->
-        match ligne with
-        | [] -> []
-        | h1::t1 ->
-          match h1 with
-          | Island a ->
-            let voisins = get_voisins solution_vide (i,j) in
-            h1::iter_ligne t1 (j+1)
-          | Bridge _ -> h1::iter_ligne t1 (j+1)
-          | Nothing -> h1::iter_ligne t1 (j+1) in
-      (iter_ligne h 0)::iter t (i+1) in
-  iter solution_vide 0;;*)
 
-print_string (toString (solve puzzleTest4))
+(* let _ = print_string (toString (solve puzzleTest4)) *)
 
              
 (* let debugPont = msgDebug^msgFinDebug *)
-let debugPont = ""
+let puztest = puzzleTest3
+let soltest = init_solution puztest
+let _ = print_string ((string_of_bool (jeu_est_fini soltest puztest))^"\n")
+let solvetest = solve puztest
+      
+let msgDebug = "\n"^(string_of_list (string_of_pair ) (parcours_largeur_pont soltest (0,0)))^"\n"^(toString soltest)^"\n"^(toString solvetest)
+             
+let debugPont = msgDebug^"\n"
 
-let _ = print_string ("si c'est True ça veut dire que solve marche, jeu_est_fini ? :"^(string_of_bool (jeu_est_fini (solve puzzleTest3) puzzleTest3))^"\n")
+(* let _ = print_string ("si c'est True ça veut dire que solve marche, jeu_est_fini ? :"^(string_of_bool (jeu_est_fini (solve puzzleTest3) puzzleTest3))^"\n") *)
 
 
 
