@@ -499,9 +499,44 @@ let solve = fun puzzle ->
     else
       apply (jeu_est_fini res puzzle) (aux puzzle_l res) in
   apply (jeu_est_fini solution_vide puzzle) solution_vide;;
-  
+
+
+  (*let rec iter = fun sol -> fun i ->
+    match sol with
+    | [] -> []
+    | h::t ->
+      let rec iter_ligne = fun ligne -> fun j ->
+        match ligne with
+        | [] -> []
+        | h1::t1 ->
+          match h1 with
+          | Island a ->
+            let voisins = get_voisins solution_vide (i,j) in
+            h1::iter_ligne t1 (j+1)
+          | Bridge _ -> h1::iter_ligne t1 (j+1)
+          | Nothing -> h1::iter_ligne t1 (j+1) in
+      (iter_ligne h 0)::iter t (i+1) in
+  iter solution_vide 0;;*)
+
+print_string (toString (solve puzzleTest4));;
+
+
+let _ =
+  Graphics.open_graph "";
+  Graphics.resize_window 500 500;
+  Graphics.set_color(Graphics.black);
+  Graphics.draw_rect 0 0 500 500;
+  Graphics.fill_rect 0 0 500 500;
+  Graphics.set_window_title "Hashiwo Kakero";
+  Graphics.rmoveto 200 450;
+  Graphics.set_color(Graphics.white);
+  Graphics.draw_string "Hashiwo Kakero !";
+  Graphics.set_text_size 2;
+  Graphics.clear_graph;
+  Graphics.draw_circle 250 250 25;;
 
 (* let _ = print_string (toString (solve puzzleTest4)) *)
+
 
              
 (* let debugPont = msgDebug^msgFinDebug *)
