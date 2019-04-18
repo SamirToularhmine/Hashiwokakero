@@ -494,6 +494,10 @@ let solve = fun puzzle ->
             else
               res in
       aux t (completer_voisins voisins res) in
+  (*let rec apply = fun i -> fun res ->
+    if i = 0 then res
+    else apply (i-1) (aux puzzle_l res) in
+  apply 10 solution_vide;;*)
   let rec apply = fun stop -> fun res ->
     if stop then res
     else
