@@ -494,6 +494,10 @@ let solve = fun puzzle ->
             else
               res in
       aux t (completer_voisins voisins res) in
+  (*let rec apply = fun i -> fun res ->
+    if i = 0 then res
+    else apply (i-1) (aux puzzle_l res) in
+  apply 10 solution_vide;;*)
   let rec apply = fun stop -> fun res ->
     if stop then res
     else
@@ -520,20 +524,6 @@ let solve = fun puzzle ->
 
 
 
-let _ =
-  Graphics.open_graph "";
-  Graphics.resize_window 500 500;
-  Graphics.set_color(Graphics.black);
-  Graphics.draw_rect 0 0 500 500;
-  Graphics.fill_rect 0 0 500 500;
-  Graphics.set_window_title "Hashiwo Kakero";
-  Graphics.rmoveto 200 450;
-  Graphics.set_color(Graphics.white);
-  Graphics.draw_string "Hashiwo Kakero !";
-  Graphics.set_text_size 2;
-  Graphics.clear_graph;
-  Graphics.draw_circle 250 250 25;;
-
 (* let _ = print_string (toString (solve puzzleTest4)) *)
 
 
@@ -550,5 +540,36 @@ let debugPont = msgDebug^"\n"
 
 (* let _ = print_string ("si c'est True ça veut dire que solve marche, jeu_est_fini ? :"^(string_of_bool (jeu_est_fini (solve puzzleTest3) puzzleTest3))^"\n") *)
 
+let main = fun unit ->
+  let solution = solve (puzzleTest1) in
+  Graphics.open_graph "";
+  Graphics.resize_window 500 500;
+  Graphics.set_color(Graphics.black);
+  Graphics.draw_rect 0 0 500 500;
+  Graphics.fill_rect 0 0 500 500;
+  Graphics.set_window_title "Hashiwo Kakero";
+  Graphics.rmoveto 200 450;
+  Graphics.set_color(Graphics.white);
+  Graphics.draw_string "Hashiwo Kakero !";
+  Graphics.set_text_size 2;
+  Graphics.clear_graph;
+  let rec displaySol = fun sol ->
+    match sol with
+  | [] -> ""
+  | h::t ->
+    let rec displayLine = fun line ->
+      match h with
+      | [] -> print_string "bah yes on passe là"; displaySol t
+      | h1::t1 ->
+        match h1 with
+        | Nothing -> print_string "bah yes on est tjrs là"; displayLine t1 
+        | Island i -> Graphics.draw_circle 250 250 25; displayLine t1
+        | Bridge { isVertical = iv; isDoubled = id } -> Graphics.draw_circle 300 250 25; displayLine t1 in
+    displayLine h in 
+  displaySol solution;
+    let rec loop = fun b ->
+      loop b in
+    loop ();;
 
+main();;
 
