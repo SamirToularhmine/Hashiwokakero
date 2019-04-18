@@ -492,17 +492,17 @@ let solve = fun puzzle ->
             if ponts_min (importance, nb_voisins) > 0 then
               completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h)) 
             else
-              res in
+              completer_voisins t res in
       aux t (completer_voisins voisins res) in
-  (*let rec apply = fun i -> fun res ->
+  let rec apply = fun i -> fun res ->
     if i = 0 then res
     else apply (i-1) (aux puzzle_l res) in
-  apply 10 solution_vide;;*)
-  let rec apply = fun stop -> fun res ->
+  apply 1 solution_vide;;
+ (* let rec apply = fun stop -> fun res ->
     if stop then res
     else
       apply (jeu_est_fini res puzzle) (aux puzzle_l res) in
-  apply (jeu_est_fini solution_vide puzzle) solution_vide;;
+  apply (jeu_est_fini solution_vide puzzle) solution_vide;;*)
 
 
   (*let rec iter = fun sol -> fun i ->
@@ -553,26 +553,25 @@ let main = fun unit ->
   Graphics.draw_string "Hashiwo Kakero !";
   Graphics.set_text_size 2;
   Graphics.clear_graph;
-  let rec displaySol = fun sol ->
+  let rec displaySol = fun sol -> fun i ->
     match sol with
   | [] -> ""
   | h::t ->
-    let rec displayLine = fun line ->
-      match h with
-      | [] -> print_string "bah yes on passe là"; displaySol t
+    let rec displayLine = fun line -> fun j ->
+      match line with
+      | [] -> displaySol t (i+1)
       | h1::t1 ->
         match h1 with
-        | Nothing ->
-          print_string "bah yes on est tjrs là\n"; displayLine t1 
-        | Island i ->
-          Graphics.draw_circle 250 250 25; displayLine t1
+        | Nothing -> displayLine t1 (j+1) 
+        | Island island ->
+          Graphics.draw_circle (350 - j * 50) (350 - i * 50) 25; displayLine t1 (j+1)
         | Bridge { isVertical = iv; isDoubled = id } ->
-          Graphics.draw_circle 300 250 25; displayLine t1 in
-    displayLine h in 
-  displaySol solution;
-    let rec loop = fun b ->
-      loop b in
-    loop ();;
+          Graphics.lineto (350 - j * 50) (250 - i * 50); displayLine t1 (j+1) in
+    displayLine h 0 in 
+  displaySol solution 0;
+let rec loop = fun b ->
+  loop b in
+loop ();;
 
-main();;
+(* main();; *)
 
