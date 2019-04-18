@@ -27,7 +27,7 @@ let string_of_cell = function
 let importance_of_island = function
   | Island imp -> imp
   | Nothing -> failwith"pas d'importance sur Nothing"
-  |Bridge b -> failwith"pas d'importance sur Bridge"
+  | Bridge b -> failwith"pas d'importance sur Bridge"
                  
 let int_of_island = function
   | Island imp -> int_of_importance imp
@@ -141,23 +141,23 @@ let sol1 =
     ])*)
 
 let puzzleTest2 = puzzle_of_list
-                   (
-                     [
-                       (coord_from_pair (0,0), importance_of_int 4);
-                       (coord_from_pair (0,3), importance_of_int 4);
-                       (coord_from_pair (0,6), importance_of_int 3);
-                       (coord_from_pair (2,1), importance_of_int 1);
-                       (coord_from_pair (2,3), importance_of_int 4);
-                       (coord_from_pair (2,5), importance_of_int 2);
-                       (coord_from_pair (3,0), importance_of_int 4);
-                       (coord_from_pair (3,6), importance_of_int 5);
-                       (coord_from_pair (5,0), importance_of_int 2);
-                       (coord_from_pair (5,5), importance_of_int 1);
-                       (coord_from_pair (6,2), importance_of_int 1);
-                       (coord_from_pair (6,4), importance_of_int 3);
-                       (coord_from_pair (6,6), importance_of_int 4)
-                     ]
-                   );;
+    (
+      [
+        (coord_from_pair (0,0), importance_of_int 4);
+        (coord_from_pair (0,3), importance_of_int 4);
+        (coord_from_pair (0,6), importance_of_int 3);
+        (coord_from_pair (2,1), importance_of_int 1);
+        (coord_from_pair (2,3), importance_of_int 4);
+        (coord_from_pair (2,5), importance_of_int 2);
+        (coord_from_pair (3,0), importance_of_int 4);
+        (coord_from_pair (3,6), importance_of_int 5);
+        (coord_from_pair (5,0), importance_of_int 2);
+        (coord_from_pair (5,5), importance_of_int 1);
+        (coord_from_pair (6,2), importance_of_int 1);
+        (coord_from_pair (6,4), importance_of_int 3);
+        (coord_from_pair (6,6), importance_of_int 4)
+      ]
+    );;
 
 let puzzleTest1 = puzzle_of_list
     (
@@ -414,6 +414,41 @@ let dir_to_coord = fun c1 -> fun c2 ->
         if i1 < i2 then Bas else Haut
     else raise UnlinkedCoords;;
 
+(* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
+let parcours_largeur_pont sol pair =
+  let rec aux pair file res =
+    let voisins_pont = get_voisins_pont sol pair in
+    let voisins_non_atteint = List.filter (fun x -> (not(List.mem x res ))) voisins_pont in
+    let file' = (function |[] -> [] |h::t->t) (file@voisins_non_atteint) in
+    match file' with
+    |[] -> res
+    |h::t -> aux h (file') (res@voisins_non_atteint)
+  in aux pair [pair] [pair]
+
+
+   
+(* la liste de paire donnée en paramètre doit être issue d'un parcours en largeur*)    
+let test_est_composante_connexe liste sol =
+  (List.length (List.filter (fun x -> est_complet (coord_from_pair x) sol) liste)) = (List.length liste)
+let jeu_est_fini sol puz =
+  let puz' = list_of_puzzle puz in 
+  let liste_finale =
+    let first_pair = pair_from_coord(fst ((function |[]->failwith"puzzle vide"|h::t->h) puz')) in
+
+    parcours_largeur_pont sol first_pair in
+  ((List.length liste_finale) = (List.length puz')) && (test_est_composante_connexe liste_finale sol)
+    
+(*let _ =
+  let pair = (2,2) in
+  let cell = getCell sol1 pair in
+  let nbPont = string_of_int (nombre_de_pont sol1 pair) in
+  print_string("PAIRE ="^(string_of_pair pair)^" : "^(string_of_cell cell)^", nombre de pont = "^nbPont^"\n")  
+
+let arb_rec = parcours_largeur_pont sol1 (2,2)
+let _ = print_string ((string_of_bool (jeu_est_fini sol1 puz1))^"\n")
+let sol3 = replace sol1 (1,2) (isl 6)
+  let msgDebug = "\n"^(string_of_list (string_of_pair ) (parcours_largeur_pont sol1 (0,0)))^"\n"^(toString sol1)*)
+
 let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
   let puzzle_l = list_of_puzzle puzzle in
@@ -449,11 +484,11 @@ let solve = fun puzzle ->
             else
               res in
       aux t (completer_voisins voisins res) in
-  let rec apply = fun i -> fun res ->
-    if i = 0 then res
+  let rec apply = fun stop -> fun res ->
+    if stop then res
     else
-    apply  (i-1) (aux puzzle_l res) in
-    apply 10 solution_vide;;
+      apply (jeu_est_fini res puzzle) (aux puzzle_l res) in
+  apply (jeu_est_fini solution_vide puzzle) solution_vide;;
   
   (*let rec iter = fun sol -> fun i ->
     match sol with
@@ -474,40 +509,6 @@ let solve = fun puzzle ->
 
 print_string (toString (solve puzzleTest4))
 
-(* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
-let parcours_largeur_pont sol pair =
-  let rec aux pair file res =
-    let voisins_pont = get_voisins_pont sol pair in
-    let voisins_non_atteint = List.filter (fun x -> (not(List.mem x res ))) voisins_pont in
-    let file' = (function |[] -> [] |h::t->t) (file@voisins_non_atteint) in
-    match file' with
-    |[] -> res
-    |h::t -> aux h (file') (res@voisins_non_atteint)
-  in aux pair [pair] [pair]
-
-
-   
-(* la liste de paire donnée en paramètre doit être issue d'un parcours en largeur*)    
-let test_est_composante_connexe liste sol =
-  (List.length (List.filter (fun x -> est_complet (coord_from_pair x) sol) liste)) = (List.length liste)
-let jeu_est_fini sol puz =
-  let puz' = list_of_puzzle puz in 
-  let liste_finale =
-    let first_pair = pair_from_coord(fst ((function |[]->failwith"puzzle vide"|h::t->h) puz')) in
-
-    parcours_largeur_pont sol first_pair in
-  ((List.length liste_finale) = (List.length puz')) && (test_est_composante_connexe liste_finale sol)
-    
-(*let _ =
-  let pair = (2,2) in
-  let cell = getCell sol1 pair in
-  let nbPont = string_of_int (nombre_de_pont sol1 pair) in
-  print_string("PAIRE ="^(string_of_pair pair)^" : "^(string_of_cell cell)^", nombre de pont = "^nbPont^"\n")  
-
-let arb_rec = parcours_largeur_pont sol1 (2,2)
-let _ = print_string ((string_of_bool (jeu_est_fini sol1 puz1))^"\n")
-let sol3 = replace sol1 (1,2) (isl 6)
-  let msgDebug = "\n"^(string_of_list (string_of_pair ) (parcours_largeur_pont sol1 (0,0)))^"\n"^(toString sol1)*) 
              
 (* let debugPont = msgDebug^msgFinDebug *)
 let debugPont = ""
