@@ -1,23 +1,11 @@
-coordinate.cmi :
-puzzle.cmi : coordinate.cmi
-solution.cmi : puzzle.cmi
 coordinate.cmo : coordinate.cmi
 coordinate.cmx : coordinate.cmi
-<<<<<<< HEAD
-main.cmo : puzzle.cmi coordinate.cmi
-main.cmx : puzzle.cmx coordinate.cmx
-=======
 coordinate.cmi :
 main.cmo : solution.cmi puzzle.cmi coordinate.cmi
 main.cmx : solution.cmx puzzle.cmx coordinate.cmx
->>>>>>> 53573815d0093a3fdcb13106853e9a0791e2575d
 puzzle.cmo : coordinate.cmi puzzle.cmi
 puzzle.cmx : coordinate.cmx puzzle.cmi
+puzzle.cmi : coordinate.cmi
 solution.cmo : puzzle.cmi coordinate.cmi solution.cmi
 solution.cmx : puzzle.cmx coordinate.cmx solution.cmi
-<<<<<<< HEAD
-test.cmo :
-test.cmx :
-=======
 solution.cmi : puzzle.cmi
->>>>>>> 53573815d0093a3fdcb13106853e9a0791e2575d
