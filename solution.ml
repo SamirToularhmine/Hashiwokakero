@@ -506,12 +506,6 @@ let dir_to_coord = fun c1 -> fun c2 ->
         if i1 < i2 then Bas else Haut
     else raise UnlinkedCoords;;
   
-
-
-    
-
-
-
 let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
   let puzzle_l = list_of_puzzle puzzle in
@@ -535,6 +529,8 @@ let solve = fun puzzle ->
         match v with
         | [] -> res
         | h::t ->
+          let pontMIN = ponts_min(importance, nb_voisins) in
+          print_pair cell_pos;print_int pontMIN; print_string "\n";
           if (est_complet (coord_from_pair cell_pos) res) || (est_complet (coord_from_pair h) res) then
             completer_voisins t res
           else
@@ -542,7 +538,7 @@ let solve = fun puzzle ->
             if importance >= (int_of_island ile_voisine) && List.length (get_voisins res h puzzle) = 1 then
               completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h))
             else
-            if ponts_min (importance, nb_voisins) > 0 then
+            if pontMIN > 0 then
               completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h)) 
             else
               completer_voisins t res in
@@ -550,12 +546,12 @@ let solve = fun puzzle ->
   let rec apply = fun i -> fun res ->
     if i = 0 then res
     else apply (i-1) (aux puzzle_l res) in
-  apply 30 solution_vide;;
-  (*let rec apply = fun stop -> fun res ->
+    apply 3 solution_vide;;
+ (* let rec apply = fun stop -> fun res ->
     if stop then res
     else
       apply (jeu_est_fini res puzzle) (aux puzzle_l res) in
-  apply (jeu_est_fini solution_vide puzzle) solution_vide;;*)
+   apply (jeu_est_fini solution_vide puzzle) solution_vide;;*)
 
 
   (*let rec iter = fun sol -> fun i ->
@@ -582,7 +578,7 @@ let solve = fun puzzle ->
 
              
 (* let debugPont = msgDebug^msgFinDebug *)
-let puztest = puzzleTest6
+let puztest = puzzleTest3
 let soltest = init_solution puztest
 let _ = print_string ((string_of_bool (jeu_est_fini soltest puztest))^"\n")
 let solvetest = solve puztest
@@ -592,9 +588,9 @@ let msgDebug = "\n"^(string_of_list (string_of_pair ) (parcours_largeur_pont sol
 let debugPont = msgDebug^"\n"
 
 (* let _ = print_string ("si c'est True ça veut dire que solve marche, jeu_est_fini ? :"^(string_of_bool (jeu_est_fini (solve puzzleTest3) puzzleTest3))^"\n") *)
-
 let main = fun unit ->
-  let solution = solve (puzzleTest1) in
+  let _ = print_string (toString (solve puzzleTest1)); in
+  let solution = solve (puzzleTest4) in
   Graphics.open_graph "";
   Graphics.resize_window 500 500;
   Graphics.set_color(Graphics.black);
@@ -605,7 +601,6 @@ let main = fun unit ->
   Graphics.set_color(Graphics.white);
   Graphics.draw_string "Hashiwo Kakero !";
   Graphics.set_text_size 2;
-  Graphics.clear_graph;
   let rec displaySol = fun sol -> fun i ->
     match sol with
   | [] -> ""
@@ -615,16 +610,65 @@ let main = fun unit ->
       | [] -> displaySol t (i+1)
       | h1::t1 ->
         match h1 with
-        | Nothing -> displayLine t1 (j+1) 
+        | Nothing ->
+          Graphics.moveto (50 + j * 60) (350 - i * 50);
+          displayLine t1 (j+1) 
         | Island island ->
-          Graphics.draw_circle (350 - j * 50) (350 - i * 50) 25; displayLine t1 (j+1)
+          Graphics.draw_circle (50 +j * 60) (350 - i * 50) 20;
+          Graphics.moveto (50 + j * 60 - 2) (350 - i * 50 - 5);
+          Graphics.draw_string (string_of_int (int_of_importance island));
+          Graphics.moveto (50 + j * 60) (350 - i * 50);
+          displayLine t1 (j+1)
         | Bridge { isVertical = iv; isDoubled = id } ->
-          Graphics.lineto (350 - j * 50) (250 - i * 50); displayLine t1 (j+1) in
+          if iv then
+            (
+              if id then
+                (
+                  Graphics.set_color Graphics.green;
+                  Graphics.moveto (50 + j * 60 - 5) (350 - i * 50 + 30);
+                  Graphics.lineto (50 + j * 60 - 5) (350 - i * 50 - 30);
+
+                  Graphics.moveto (50 + j * 60 + 5) (350 - i * 50 + 30);
+                  Graphics.lineto (50 + j * 60 + 5) (350 - i * 50 - 30);
+                  Graphics.set_color Graphics.white;displayLine t1 (j+1)
+                )
+              else
+                (
+                  Graphics.set_color Graphics.yellow;
+                  Graphics.moveto (50 + j * 60) (350 - i * 50 + 30);
+                  Graphics.lineto (50 + j * 60) (350 - i * 50 - 30);
+                  Graphics.set_color Graphics.white;displayLine t1 (j+1)
+                )
+            )
+              (*if iv then (Graphics.lineto (350 - j * 60) (350 - i * 50); displayLine t1 (j+1))
+                else (Graphics.lineto (350 - j * 60) (350 - i * 50);*)
+          else
+            (
+              if id then
+                (
+                  Graphics.set_color Graphics.green;
+                  Graphics.moveto (50 + j * 60 + 40) (350 - i * 50 + 5);
+                  Graphics.lineto (50 + j * 60 - 40) (350 - i * 50 + 5);
+                  Graphics.moveto (50 + j * 60 + 40) (350 - i * 50 - 5);
+                  Graphics.lineto (50 + j * 60 - 40) (350 - i * 50 - 5);
+                  Graphics.set_color Graphics.white;
+                  
+                  displayLine t1 (j+1)
+                )
+              else
+                (
+                  Graphics.set_color Graphics.red;
+                  Graphics.moveto (50 + j * 60 + 40) (350 - i * 50);
+                  Graphics.lineto (50 + j * 60 - 40) (350 - i * 50);
+                  Graphics.set_color Graphics.white;
+                  displayLine t1 (j+1) 
+                )
+            ) in 
     displayLine h 0 in 
   displaySol solution 0;
 let rec loop = fun b ->
   loop b in
 loop ();;
 
-(*main();;*)
+main();;
 
