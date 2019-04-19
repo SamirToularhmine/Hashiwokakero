@@ -12,4 +12,4 @@ val toString : cell list list -> string
 
 val debugPont : string
 
-val solve : puzzle -> solution
+val solve : puzzle -> cell list list

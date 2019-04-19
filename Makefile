@@ -88,7 +88,7 @@ CAMLYACC = ocamlyacc
 # LIBS=$(WITHGRAPHICS) $(WITHUNIX) $(WITHSTR) $(WITHNUMS) $(WITHTHREADS)\
 # $(WITHDBM)
 
-LIBS=$(WITHGRAPHICS)
+LIBS=$(WITHGRAPHICS) $(WITHUNIX)
 
 # Should be set to -custom if you use any of the libraries above
 # or if any C code have to be linked with your program
@@ -98,9 +98,9 @@ CUSTOM=-custom
 
 # Default setting of the WITH* variables. Should be changed if your
 # local libraries are not found by the compiler.
-#WITHGRAPHICS =graphics.cma -cclib -lgraphics -cclib -L/usr/X11R6/lib -cclib -lX11
+WITHGRAPHICS =graphics.cma -cclib -lgraphics -cclib -L/usr/X11R6/lib -cclib -lX11
 
-#WITHUNIX =unix.cma -cclib -lunix
+WITHUNIX =unix.cma -cclib -lunix
 
 #WITHSTR =str.cma -cclib -lstr
 

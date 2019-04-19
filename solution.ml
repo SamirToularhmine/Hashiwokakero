@@ -149,24 +149,24 @@ let sol1 =
     ])*)
 
 let puzzleTest2 = puzzle_of_list
-                    (
-                      [
-                        (coord_from_pair (0,0), importance_of_int 4);
-                        (coord_from_pair (0,3), importance_of_int 4);
-                        (coord_from_pair (0,6), importance_of_int 3);
-                        (coord_from_pair (2,1), importance_of_int 1);
-                        (coord_from_pair (2,3), importance_of_int 4);
-                        (coord_from_pair (2,5), importance_of_int 2);
-                        (coord_from_pair (3,0), importance_of_int 4);
-                        (coord_from_pair (3,6), importance_of_int 5);
-                        (coord_from_pair (5,0), importance_of_int 2);
-                        (coord_from_pair (5,5), importance_of_int 1);
-                        (coord_from_pair (6,2), importance_of_int 1);
-                        (coord_from_pair (6,4), importance_of_int 3);
-                        (coord_from_pair (6,6), importance_of_int 4)
-                      ]
-                    )
-                
+    (
+      [
+        (coord_from_pair (0,0), importance_of_int 4);
+        (coord_from_pair (0,3), importance_of_int 4);
+        (coord_from_pair (0,6), importance_of_int 3);
+        (coord_from_pair (2,1), importance_of_int 1);
+        (coord_from_pair (2,3), importance_of_int 4);
+        (coord_from_pair (2,5), importance_of_int 2);
+        (coord_from_pair (3,0), importance_of_int 4);
+        (coord_from_pair (3,6), importance_of_int 5);
+        (coord_from_pair (5,0), importance_of_int 2);
+        (coord_from_pair (5,5), importance_of_int 1);
+        (coord_from_pair (6,2), importance_of_int 1);
+        (coord_from_pair (6,4), importance_of_int 3);
+        (coord_from_pair (6,6), importance_of_int 4)
+      ]
+    );;
+
 let puzzleTest1 = puzzle_of_list
                     (
                       [
@@ -198,27 +198,79 @@ let puzzleTest3 = puzzle_of_list
                     );;
 
 let puzzleTest4 = puzzle_of_list
-                    (
-                      [
-                        (coord_from_pair (0,0), importance_of_int 2);
-                        (coord_from_pair (0,2), importance_of_int 3);
-                        (coord_from_pair (0,4), importance_of_int 1);
-                        (coord_from_pair (0,6), importance_of_int 1);
-                        (coord_from_pair (1,1), importance_of_int 2);
-                        (coord_from_pair (1,3), importance_of_int 1);
-                        (coord_from_pair (3,2), importance_of_int 1);
-                        (coord_from_pair (4,1), importance_of_int 3);
-                        (coord_from_pair (4,3), importance_of_int 5);
-                        (coord_from_pair (4,6), importance_of_int 2);
-                        (coord_from_pair (6,0), importance_of_int 2);
-                        (coord_from_pair (6,3), importance_of_int 4);
-                        (coord_from_pair (6,5), importance_of_int 1)
-                      ]
-                    );;
+    (
+      [
+        (coord_from_pair (0,0), importance_of_int 2);
+        (coord_from_pair (0,2), importance_of_int 3);
+        (coord_from_pair (0,4), importance_of_int 1);
+        (coord_from_pair (0,6), importance_of_int 1);
+        (coord_from_pair (1,1), importance_of_int 2);
+        (coord_from_pair (1,3), importance_of_int 1);
+        (coord_from_pair (3,2), importance_of_int 1);
+        (coord_from_pair (4,1), importance_of_int 3);
+        (coord_from_pair (4,3), importance_of_int 5);
+        (coord_from_pair (4,6), importance_of_int 2);
+        (coord_from_pair (6,0), importance_of_int 2);
+        (coord_from_pair (6,3), importance_of_int 4);
+        (coord_from_pair (6,5), importance_of_int 1)
+      ]
+    );;
 
-let getCell sol = function
-  | (x,y) -> if (oob sol (x,y)) then raise OutOfBounds else nth (nth sol x) y
-                                    
+let puzzleTest5 = puzzle_of_list
+    (
+      [
+        (coord_from_pair (0,1), importance_of_int 2);
+        (coord_from_pair (0,3), importance_of_int 6);
+        (coord_from_pair (0,6), importance_of_int 3);
+        (coord_from_pair (2,0), importance_of_int 1);
+        (coord_from_pair (2,3), importance_of_int 6);
+        (coord_from_pair (2,5), importance_of_int 2);
+        (coord_from_pair (3,4), importance_of_int 1);
+        (coord_from_pair (3,6), importance_of_int 3);
+        (coord_from_pair (4,0), importance_of_int 1);
+        (coord_from_pair (5,4), importance_of_int 1);
+        (coord_from_pair (5,6), importance_of_int 2);
+        (coord_from_pair (6,0), importance_of_int 3);
+        (coord_from_pair (6,3), importance_of_int 5);
+        (coord_from_pair (6,5), importance_of_int 2)
+      ]
+    );;
+
+let puzzleTest6 = puzzle_of_list
+    (
+      [
+        (coord_from_pair (0,0), importance_of_int 4);
+        (coord_from_pair (0,2), importance_of_int 4);
+        (coord_from_pair (0,5), importance_of_int 2);
+        (coord_from_pair (0,8), importance_of_int 3);
+        (coord_from_pair (2,0), importance_of_int 6);
+        (coord_from_pair (2,2), importance_of_int 8);
+        (coord_from_pair (2,4), importance_of_int 4);
+        (coord_from_pair (2,7), importance_of_int 1);
+        (coord_from_pair (3,6), importance_of_int 1);
+        (coord_from_pair (3,8), importance_of_int 3);
+        (coord_from_pair (4,2), importance_of_int 2);
+        (coord_from_pair (4,4), importance_of_int 2);
+        (coord_from_pair (4,7), importance_of_int 1);
+        (coord_from_pair (5,0), importance_of_int 4);
+        (coord_from_pair (5,3), importance_of_int 3);
+        (coord_from_pair (5,5), importance_of_int 2);
+        (coord_from_pair (6,6), importance_of_int 2);
+        (coord_from_pair (6,8), importance_of_int 3);
+        (coord_from_pair (7,1), importance_of_int 1);
+        (coord_from_pair (7,3), importance_of_int 5);
+        (coord_from_pair (7,5), importance_of_int 4);
+        (coord_from_pair (8,0), importance_of_int 3);
+        (coord_from_pair (8,2), importance_of_int 3);
+        (coord_from_pair (8,4), importance_of_int 2);
+        (coord_from_pair (8,6), importance_of_int 3);
+        (coord_from_pair (8,8), importance_of_int 2)
+      ]
+    );;
+
+
+let getCell sol = function | (x,y) -> if(oob sol (x,y))then failwith"OULAH" else nth (nth sol x) y
+                                        
 let c = coord_from_pair (1,1)
                                               
 let msgFinDebug = ("\n ---------FIN DEBUG----------- \n")
@@ -343,34 +395,11 @@ let ponts_restants = fun c -> fun sol ->
     match cell with
     | Island a -> int_of_importance a
     | _ -> failwith "Pas une ile !" in
-  let total_ponts = count_total_ponts c sol in
+  let total_ponts = nombre_de_pont sol (pair_from_coord c) in
   importance - total_ponts
+
+
   
-let get_voisins sol pair =
-  let bon_sens_pas_double =
-    function
-    | Bridge {isVertical = true; isDoubled = false },(Haut|Bas) -> true
-    | Bridge {isVertical = false; isDoubled = false },(Gauche|Droite) -> true
-    | _,_ -> false in
-  
-  let rec get_first_island pair dir =
-    let nextPair = next_pair dir pair in
-    if (oob sol pair) then []
-    else
-      let current_cell = getCell sol pair  in
-
-    match current_cell with
-    |Nothing -> get_first_island nextPair dir
-    |(Bridge b') as b -> if (bon_sens_pas_double (b,dir)) then (get_first_island nextPair dir) else []
-    |(Island imp) -> if (est_complet (coord_from_pair pair) sol) then [] else [pair]
-    (*est_complet (coord_from_pair pair) sol*)
-  in
-
-  (get_first_island (next_pair Gauche pair) Gauche)@
-    (get_first_island (next_pair Haut pair) Haut)@
-      (get_first_island (next_pair Droite pair) Droite)@
-  (get_first_island (next_pair Bas pair) Bas)
-
 let get_voisins_pont sol pair =
   let bon_sens =
     function
@@ -387,12 +416,77 @@ let get_voisins_pont sol pair =
     match current_cell with
     |Nothing ->  []
     |(Bridge b') as b -> if (bon_sens (b,dir)) then (get_first_island nextPair dir) else []
-    |(Island imp)-> [pair] in
+    |(Island imp)-> [pair]
+    
+  in
 
   (get_first_island (next_pair Gauche pair) Gauche)@
     (get_first_island (next_pair Haut pair) Haut)@
       (get_first_island (next_pair Droite pair) Droite)@
   (get_first_island (next_pair Bas pair) Bas)
+
+
+  (* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
+let parcours_largeur_pont sol pair =
+  let rec aux pair file res =
+    let voisins_pont = get_voisins_pont sol pair in
+    let voisins_non_atteint = List.filter (fun x -> (not(List.mem x res ))) voisins_pont in
+    let file' = (function |[] -> [] |h::t->t) (file@voisins_non_atteint) in
+    match file' with
+    |[] -> res
+    |h::t -> aux h (file') (res@voisins_non_atteint)
+  in aux pair [pair] [pair]
+
+  
+(* la liste de paire donnée en paramètre doit être issue d'un parcours en largeur*)    
+let test_est_composante_connexe liste sol =
+  (List.length (List.filter (fun x -> est_complet (coord_from_pair x) sol) liste)) = (List.length liste)
+
+let jeu_est_fini sol puz =
+  let puz' = list_of_puzzle puz in 
+  let liste_finale = 
+    let first_pair = pair_from_coord(fst ((function |[]->failwith"puzzle vide"|h::t->h) puz')) in
+
+    parcours_largeur_pont sol first_pair in
+  ((List.length liste_finale) = (List.length puz')) && (test_est_composante_connexe liste_finale sol)
+
+  
+let get_voisins sol pair puz =
+  
+  let bon_sens_pas_double =
+    function
+    | Bridge {isVertical = true; isDoubled = false },(Haut|Bas) -> true
+    | Bridge {isVertical = false; isDoubled = false },(Gauche|Droite) -> true
+    | _,_ -> false in
+  
+  let rec get_first_island pair' dir =
+    
+    let nextPair = next_pair dir pair' in
+    if (oob sol pair') then []
+    else
+      let current_cell = getCell sol pair' in
+
+    match current_cell with
+    |Nothing -> get_first_island nextPair dir
+    |(Bridge b') as b -> if (bon_sens_pas_double (b,dir)) then (get_first_island nextPair dir) else []
+    |(Island imp) ->if (est_complet (coord_from_pair pair') sol) then [] else
+                      if(est_complet (coord_from_pair pair) sol) then [] else
+      let compo_connexe =
+        let sol_sim = dessinerPonts sol pair dir in
+        let liste_cw = parcours_largeur_pont sol_sim pair' in
+        
+        (test_est_composante_connexe liste_cw sol_sim) && (not(jeu_est_fini sol_sim puz))  
+
+      in if (compo_connexe) then [] else [pair']
+    
+  in
+
+  (get_first_island (next_pair Gauche pair) Gauche)@
+    (get_first_island (next_pair Haut pair) Haut)@
+      (get_first_island (next_pair Droite pair) Droite)@
+  (get_first_island (next_pair Bas pair) Bas)
+
+
   
 let string_of_list string_of liste = (List.fold_right (fun x y-> ("[")^(string_of x)^"]"^y) (liste) "")
 
@@ -405,7 +499,7 @@ let dir_to_coord = fun c1 -> fun c2 ->
       else
         if i1 < i2 then Bas else Haut
     else raise UnlinkedCoords;;
-
+  
 let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
   let puzzle_l = list_of_puzzle puzzle in
@@ -414,7 +508,7 @@ let solve = fun puzzle ->
     | [] -> res
     | h::t ->
       let cell_pos = pair_from_coord (fst h) in
-      let voisins = get_voisins res cell_pos in
+      let voisins = get_voisins res cell_pos puzzle in
       let nb_voisins = List.length voisins in
       let importance = int_of_importance (snd h) in
       let ponts_min = fun (x,y) ->
@@ -429,24 +523,31 @@ let solve = fun puzzle ->
         match v with
         | [] -> res
         | h::t ->
+          let pontMIN = ponts_min(importance, nb_voisins) in
+          print_pair cell_pos;print_int pontMIN; print_string "\n";
           if (est_complet (coord_from_pair cell_pos) res) || (est_complet (coord_from_pair h) res) then
             completer_voisins t res
           else
             let ile_voisine = getCell res h in
-            if importance >= (int_of_island ile_voisine) && List.length (get_voisins res h) = 1 then
+            if importance >= (int_of_island ile_voisine) && List.length (get_voisins res h puzzle) = 1 then
               completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h))
             else
-            if ponts_min (importance, nb_voisins) > 0 then
+            if pontMIN > 0 then
               completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h)) 
             else
-              res in
+              completer_voisins t res in
       aux t (completer_voisins voisins res) in
   let rec apply = fun i -> fun res ->
     if i = 0 then res
+    else apply (i-1) (aux puzzle_l res) in
+    apply 3 solution_vide;;
+ (* let rec apply = fun stop -> fun res ->
+    if stop then res
     else
-    apply  (i-1) (aux puzzle_l res) in
-    apply (List.length puzzle_l) solution_vide;;
-  
+      apply (jeu_est_fini res puzzle) (aux puzzle_l res) in
+   apply (jeu_est_fini solution_vide puzzle) solution_vide;;*)
+
+
   (*let rec iter = fun sol -> fun i ->
     match sol with
     | [] -> []
@@ -464,47 +565,104 @@ let solve = fun puzzle ->
       (iter_ligne h 0)::iter t (i+1) in
   iter solution_vide 0;;*)
 
-print_string (toString (solve puzzleTest1))
-
-(* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
-let parcours_largeur_pont sol pair =
-  let rec aux pair file res =
-    let voisins_pont = get_voisins_pont sol pair in
-    let voisins_non_atteint = List.filter (fun x -> (not(List.mem x res ))) voisins_pont in
-    let file' = (function |[] -> [] |h::t->t) (file@voisins_non_atteint) in
-    match file' with
-    |[] -> res
-    |h::t -> aux h (file') (res@voisins_non_atteint)
-  in aux pair [pair] [pair]
 
 
-   
-(* la liste de paire donnée en paramètre doit être issue d'un parcours en largeur*)    
-let test_est_composante_connexe liste sol =
-  (List.length (List.filter (fun x -> est_complet (coord_from_pair x) sol) liste)) = (List.length liste)
-let jeu_est_fini sol puz =
-  let puz' = list_of_puzzle puz in 
-  let liste_finale =
-    let first_pair = pair_from_coord(fst ((function |[]->failwith"puzzle vide"|h::t->h) puz')) in
+(* let _ = print_string (toString (solve puzzleTest4)) *)
 
-    parcours_largeur_pont sol first_pair in
-  ((List.length liste_finale) = (List.length puz')) && (test_est_composante_connexe liste_finale sol)
-    
-(*let _ =
-  let pair = (2,2) in
-  let cell = getCell sol1 pair in
-  let nbPont = string_of_int (nombre_de_pont sol1 pair) in
-  print_string("PAIRE ="^(string_of_pair pair)^" : "^(string_of_cell cell)^", nombre de pont = "^nbPont^"\n")  
 
-let arb_rec = parcours_largeur_pont sol1 (2,2)
-let _ = print_string ((string_of_bool (jeu_est_fini sol1 puz1))^"\n")
-let sol3 = replace sol1 (1,2) (isl 6)
-  let msgDebug = "\n"^(string_of_list (string_of_pair ) (parcours_largeur_pont sol1 (0,0)))^"\n"^(toString sol1)*) 
              
 (* let debugPont = msgDebug^msgFinDebug *)
-let debugPont = ""
+let puztest = puzzleTest3
+let soltest = init_solution puztest
+let _ = print_string ((string_of_bool (jeu_est_fini soltest puztest))^"\n")
+let solvetest = solve puztest
+      
+let msgDebug = "\n"^(string_of_list (string_of_pair ) (parcours_largeur_pont soltest (0,0)))^"\n"^(toString soltest)^"\n"^(toString solvetest)
+             
+let debugPont = msgDebug^"\n"
 
-let _ = print_string ("si c'est True ça veut dire que solve marche, jeu_est_fini ? :"^(string_of_bool (jeu_est_fini (solve puzzleTest3) puzzleTest3))^"\n")
+(* let _ = print_string ("si c'est True ça veut dire que solve marche, jeu_est_fini ? :"^(string_of_bool (jeu_est_fini (solve puzzleTest3) puzzleTest3))^"\n") *)
+let main = fun unit ->
+  let _ = print_string (toString (solve puzzleTest1)); in
+  let solution = solve (puzzleTest4) in
+  Graphics.open_graph "";
+  Graphics.resize_window 500 500;
+  Graphics.set_color(Graphics.black);
+  Graphics.draw_rect 0 0 500 500;
+  Graphics.fill_rect 0 0 500 500;
+  Graphics.set_window_title "Hashiwo Kakero";
+  Graphics.rmoveto 200 450;
+  Graphics.set_color(Graphics.white);
+  Graphics.draw_string "Hashiwo Kakero !";
+  Graphics.set_text_size 2;
+  let rec displaySol = fun sol -> fun i ->
+    match sol with
+  | [] -> ""
+  | h::t ->
+    let rec displayLine = fun line -> fun j ->
+      match line with
+      | [] -> displaySol t (i+1)
+      | h1::t1 ->
+        match h1 with
+        | Nothing ->
+          Graphics.moveto (50 + j * 60) (350 - i * 50);
+          displayLine t1 (j+1) 
+        | Island island ->
+          Graphics.draw_circle (50 +j * 60) (350 - i * 50) 20;
+          Graphics.moveto (50 + j * 60 - 2) (350 - i * 50 - 5);
+          Graphics.draw_string (string_of_int (int_of_importance island));
+          Graphics.moveto (50 + j * 60) (350 - i * 50);
+          displayLine t1 (j+1)
+        | Bridge { isVertical = iv; isDoubled = id } ->
+          if iv then
+            (
+              if id then
+                (
+                  Graphics.set_color Graphics.green;
+                  Graphics.moveto (50 + j * 60 - 5) (350 - i * 50 + 30);
+                  Graphics.lineto (50 + j * 60 - 5) (350 - i * 50 - 30);
 
+                  Graphics.moveto (50 + j * 60 + 5) (350 - i * 50 + 30);
+                  Graphics.lineto (50 + j * 60 + 5) (350 - i * 50 - 30);
+                  Graphics.set_color Graphics.white;displayLine t1 (j+1)
+                )
+              else
+                (
+                  Graphics.set_color Graphics.yellow;
+                  Graphics.moveto (50 + j * 60) (350 - i * 50 + 30);
+                  Graphics.lineto (50 + j * 60) (350 - i * 50 - 30);
+                  Graphics.set_color Graphics.white;displayLine t1 (j+1)
+                )
+            )
+              (*if iv then (Graphics.lineto (350 - j * 60) (350 - i * 50); displayLine t1 (j+1))
+                else (Graphics.lineto (350 - j * 60) (350 - i * 50);*)
+          else
+            (
+              if id then
+                (
+                  Graphics.set_color Graphics.green;
+                  Graphics.moveto (50 + j * 60 + 40) (350 - i * 50 + 5);
+                  Graphics.lineto (50 + j * 60 - 40) (350 - i * 50 + 5);
+                  Graphics.moveto (50 + j * 60 + 40) (350 - i * 50 - 5);
+                  Graphics.lineto (50 + j * 60 - 40) (350 - i * 50 - 5);
+                  Graphics.set_color Graphics.white;
+                  
+                  displayLine t1 (j+1)
+                )
+              else
+                (
+                  Graphics.set_color Graphics.red;
+                  Graphics.moveto (50 + j * 60 + 40) (350 - i * 50);
+                  Graphics.lineto (50 + j * 60 - 40) (350 - i * 50);
+                  Graphics.set_color Graphics.white;
+                  displayLine t1 (j+1) 
+                )
+            ) in 
+    displayLine h 0 in 
+  displaySol solution 0;
+let rec loop = fun b ->
+  loop b in
+loop ();;
 
+main();;
 

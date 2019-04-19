@@ -36,7 +36,7 @@ let puzzleTest = puzzle_of_list
                    );;
 (*let _ = print_string (Solution.toString solution);;*)
 
-(* let _ = print_string (Solution.debugPont);; *)
+let _ = print_string (Solution.debugPont);;
 
 
 (*let puzzle2 =
@@ -117,4 +117,4 @@ let _ = fstcoord (fst(reducepuzzle ((fun x y->if (fst x) >~ (fst y) then x else 
 
 (* nombre de (coordinate*importance) dans un puzzle  *)
 let lengthpzl (Puzzle l)=List.length l;;
-lengthpzl puzzle2;;*)
+   lengthpzl puzzle2;;*)
