@@ -537,15 +537,15 @@ let solve = fun puzzle ->
             else
               completer_voisins t res in
       aux t (completer_voisins voisins res) in
-  let rec apply = fun i -> fun res ->
+  (*let rec apply = fun i -> fun res ->
     if i = 0 then res
     else apply (i-1) (aux puzzle_l res) in
-    apply 3 solution_vide;;
- (* let rec apply = fun stop -> fun res ->
+    apply 30 solution_vide;;*)
+  let rec apply = fun stop -> fun res ->
     if stop then res
     else
       apply (jeu_est_fini res puzzle) (aux puzzle_l res) in
-   apply (jeu_est_fini solution_vide puzzle) solution_vide;;*)
+   apply (jeu_est_fini solution_vide puzzle) solution_vide;;
 
 
   (*let rec iter = fun sol -> fun i ->
@@ -564,12 +564,6 @@ let solve = fun puzzle ->
           | Nothing -> h1::iter_ligne t1 (j+1) in
       (iter_ligne h 0)::iter t (i+1) in
   iter solution_vide 0;;*)
-
-
-
-(* let _ = print_string (toString (solve puzzleTest4)) *)
-
-
              
 (* let debugPont = msgDebug^msgFinDebug *)
 let puztest = puzzleTest3
@@ -583,7 +577,7 @@ let debugPont = msgDebug^"\n"
 
 (* let _ = print_string ("si c'est True ça veut dire que solve marche, jeu_est_fini ? :"^(string_of_bool (jeu_est_fini (solve puzzleTest3) puzzleTest3))^"\n") *)
 let main = fun unit ->
-  let _ = print_string (toString (solve puzzleTest1)); in
+  (*let _ = print_string (toString (solve puzzleTest1)); in*)
   let solution = solve (puzzleTest4) in
   Graphics.open_graph "";
   Graphics.resize_window 500 500;
@@ -664,5 +658,5 @@ let rec loop = fun b ->
   loop b in
 loop ();;
 
-main();;
+(*main();;*)
 
