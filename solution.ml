@@ -426,6 +426,7 @@ let get_voisins_pont sol pair =
   (get_first_island (next_pair Bas pair) Bas)
 
 
+
   (* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
 let parcours_largeur_pont sol pair =
   let rec aux pair file res =
@@ -499,6 +500,91 @@ let dir_to_coord = fun c1 -> fun c2 ->
       else
         if i1 < i2 then Bas else Haut
     else raise UnlinkedCoords;;
+
+let fill pair sol puz =
+  let lv = get_voisins sol pair puz in (print_string (string_of_pair(pair)^("] lv: [")^(string_of_list string_of_pair lv)^("\n")));
+    let rec aux l res =
+      match l with
+      |[] -> res
+      |h::t -> let dir = dir_to_coord pair h in
+               aux t (dessinerPonts res pair dir) 
+    in aux lv sol 
+       
+let nfill pair sol puz =
+  let rec aux pair res =
+    let nbpr = (ponts_restants (coord_from_pair pair) res ) in
+    if nbpr = 0 then res else aux pair (fill pair res puz)
+  in aux pair sol
+
+   let get_voisins sol pair puz =
+  
+  let bon_sens_pas_double =
+    function
+    | Bridge {isVertical = true; isDoubled = false },(Haut|Bas) -> true
+    | Bridge {isVertical = false; isDoubled = false },(Gauche|Droite) -> true
+    | _,_ -> false in
+  
+  let rec get_first_island pair' dir =
+    
+    let nextPair = next_pair dir pair' in
+    if (oob sol pair') then []
+    else
+      let current_cell = getCell sol pair' in
+
+    match current_cell with
+    |Nothing -> get_first_island nextPair dir
+    |(Bridge b') as b -> if (bon_sens_pas_double (b,dir)) then (get_first_island nextPair dir) else []
+    |(Island imp) ->if (est_complet (coord_from_pair pair') sol) then [] else
+                      if(est_complet (coord_from_pair pair) sol) then [] else
+      let compo_connexe =
+        let sol_sim = dessinerPonts sol pair dir in
+        let liste_cw = parcours_largeur_pont sol_sim pair' in
+        
+        (test_est_composante_connexe liste_cw sol_sim) && (not(jeu_est_fini sol_sim puz))  
+
+      in if (compo_connexe) then [] else [pair']
+    
+  in
+
+  (get_first_island (next_pair Gauche pair) Gauche)@
+    (get_first_island (next_pair Haut pair) Haut)@
+      (get_first_island (next_pair Droite pair) Droite)@
+  (get_first_island (next_pair Bas pair) Bas)
+
+let get_voisins_test sol pair puz =
+  let vp = get_voisins_pont sol pair in
+  let rec get_first_island pair' dir =
+    let bon_sens =
+      function
+      | Bridge {isVertical = true; isDoubled = _ },(Haut|Bas) -> true
+      | Bridge {isVertical = false; isDoubled = _ },(Gauche|Droite) -> true
+      | _,_ -> false in
+    
+    let nextPair = next_pair dir pair' in
+    if (oob sol pair') then []
+    else
+      let current_cell = getCell sol pair' in
+
+    match current_cell with
+    |Nothing -> get_first_island nextPair dir
+    |(Bridge b') as b ->if (bon_sens (b,dir)) then (get_first_island nextPair dir) else []
+    |(Island imp) -> if (est_complet (coord_from_pair pair') sol) then(if (List.mem pair' vp )then [pair'] else []) else
+                      if(est_complet (coord_from_pair pair) sol) then [] else
+      let compo_connexe =
+        let sol_sim = dessinerPonts sol pair dir in
+        let liste_cw = parcours_largeur_pont sol_sim pair' in
+        
+        (test_est_composante_connexe liste_cw sol_sim) && (not(jeu_est_fini sol_sim puz))  
+
+      in if (compo_connexe) then [] else [pair']
+    
+  in
+
+  (get_first_island (next_pair Gauche pair) Gauche)@
+    (get_first_island (next_pair Haut pair) Haut)@
+      (get_first_island (next_pair Droite pair) Droite)@
+  (get_first_island (next_pair Bas pair) Bas)
+
   
 let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
@@ -525,7 +611,8 @@ let solve = fun puzzle ->
         match v with
         | [] -> res
         | h::t ->
-          let pontMIN = ponts_min((ponts_restants (coord_from_pair cell_pos) res), nb_voisins) in
+           let pontMIN = ponts_min((ponts_restants (coord_from_pair cell_pos) res), nb_voisins) in
+           
           if (est_complet (coord_from_pair cell_pos) res) || (est_complet (coord_from_pair h) res) then
             completer_voisins t res
           else
@@ -535,24 +622,6 @@ let solve = fun puzzle ->
             else
             if pontMIN > 0 then
               (
-                if pontMIN = importance then
-                  (
-                    let rec pontsrestants_ok = fun res ->
-                      
-                      if ponts_restants (coord_from_pair cell_pos) res > 0 then
-                        let rec remplir_voisin = fun i -> fun v -> fun res -> 
-                          if i = 0 then res
-                          else
-                            match v with
-                            | [] -> res
-                            | h::t -> remplir_voisin (i-1) t (dessinerPonts res cell_pos (dir_to_coord cell_pos h))
-                        in remplir_voisin pontMIN v res
-                      else
-                        res
-                    in pontsrestants_ok res
-                  )
-                  
-                else 
                   
                   (*completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h))*)
                   dessinerPonts res cell_pos (dir_to_coord cell_pos h)
@@ -560,16 +629,25 @@ let solve = fun puzzle ->
               )
             else
               completer_voisins t res in
-      aux t (completer_voisins voisins res) in
-let rec apply = fun i -> fun res ->
-    if i = 0 then res
-    else apply (i-1) (aux puzzle_l res) in
-  apply 1 solution_vide;;
-(*let rec apply = fun stop -> fun res ->
-    if stop then res
-    else
-      apply (jeu_est_fini res puzzle) (aux puzzle_l res) in
-  apply (jeu_est_fini solution_vide puzzle) solution_vide;;*)
+      let lvtest = (get_voisins_test res cell_pos puzzle) in
+      let nb_voisins_test = List.length lvtest in 
+      let pontMIN' = ponts_min (importance,nb_voisins_test)in
+      ((print_string (string_of_pair(cell_pos)^("] lvtest [")^(string_of_list string_of_pair lvtest )^("\n"))));
+      if pontMIN' = importance then
+        (
+          aux t (nfill cell_pos res puzzle) 
+        )
+      
+      else  aux t (completer_voisins voisins res) in
+  let rec apply = fun i -> fun res ->
+                           if i = 0 then res
+                           else apply (i-1) (aux puzzle_l res) in
+  apply 10 solution_vide;;
+(* let rec apply = fun stop -> fun res ->
+ *     if stop then res       
+ *     else    
+ *       apply (jeu_est_fini res puzzle) (aux puzzle_l res) in
+ *   apply (jeu_est_fini solution_vide puzzle) solution_vide;; *)
 
 
   (*let rec iter = fun sol -> fun i ->
@@ -591,12 +669,15 @@ let rec apply = fun i -> fun res ->
              
 (* let debugPont = msgDebug^msgFinDebug *)
 
+
+   
 let puzzleTest7 = puzzle_of_list [coimp (0,0) 1;coimp (0,2) 2(*;coimp (2,0) 1*); coimp (2,2) 1]
+let puzzleTest8 = puzzle_of_list [coimp (1,2) 2;coimp (2,0) 2;coimp (2,2) 8;coimp (2,4) 2;coimp (4,2) 2 ]
 let puztest = puzzleTest6
 let soltest = init_solution puztest
 let _ = print_string ((string_of_bool (jeu_est_fini soltest puztest))^"\n")
 let solvetest = solve puztest
-      
+(*let solvetest = nfill (2,2) soltest puztest*)
 let msgDebug = "\n"^(string_of_list (string_of_pair ) (parcours_largeur_pont soltest (0,0)))^"\n"^(toString soltest)^"\n"^(toString solvetest)
              
 let debugPont = msgDebug^"\n"
