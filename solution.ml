@@ -513,11 +513,7 @@ let solve = fun puzzle ->
       let importance = int_of_importance (snd h) in
       let ponts_min = fun (x,y) ->
         if x mod 2 = 0 then
-          if x/2 = y then
-            (
-              print_string "WTF on place x la : "; print_int x;
-              x
-            )
+          if x/2 = y then x
           else if x/2 > y  then 1
           else 0
         else
@@ -539,14 +535,33 @@ let solve = fun puzzle ->
             else
             if pontMIN > 0 then
               (
-                (*completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h))*)
-                dessinerPonts res cell_pos (dir_to_coord cell_pos h)
+                if pontMIN = importance then
+                  (
+                    let rec pontsrestants_ok = fun res ->
+                      
+                      if ponts_restants (coord_from_pair cell_pos) res > 0 then
+                        let rec remplir_voisin = fun i -> fun v -> fun res -> 
+                          if i = 0 then res
+                          else
+                            match v with
+                            | [] -> res
+                            | h::t -> remplir_voisin (i-1) t (dessinerPonts res cell_pos (dir_to_coord cell_pos h))
+                        in remplir_voisin pontMIN v res
+                      else
+                        res
+                    in pontsrestants_ok res
+                  )
+                  
+                else 
+                  
+                  (*completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h))*)
+                  dessinerPonts res cell_pos (dir_to_coord cell_pos h)
                 
               )
             else
               completer_voisins t res in
       aux t (completer_voisins voisins res) in
- let rec apply = fun i -> fun res ->
+let rec apply = fun i -> fun res ->
     if i = 0 then res
     else apply (i-1) (aux puzzle_l res) in
   apply 1 solution_vide;;
@@ -613,11 +628,30 @@ let main = fun unit ->
           Graphics.moveto (50 + j * 60) (350 - i * 50);
           displayLine t1 (j+1) 
         | Island island ->
+          (*
           Graphics.draw_circle (50 +j * 60) (350 - i * 50) 20;
           Graphics.moveto (50 + j * 60 - 2) (350 - i * 50 - 5);
           Graphics.draw_string (string_of_int (int_of_importance island));
           Graphics.moveto (50 + j * 60) (350 - i * 50);
-          displayLine t1 (j+1)
+          displayLine t1 (j+1)*)
+          if ponts_restants (coord_from_pair (i,j) ) sol = 0 then
+            (
+              Graphics.draw_circle (50 +j * 60) (350 - i * 50) 20;
+              Graphics.moveto (50 + j * 60 - 2) (350 - i * 50 - 5);
+              Graphics.draw_string (string_of_int (int_of_importance island));
+              Graphics.moveto (50 + j * 60) (350 - i * 50);
+              displayLine t1 (j+1)
+            )
+          else
+            (
+              Graphics.set_color Graphics.red;
+              Graphics.draw_circle (50 +j * 60) (350 - i * 50) 20;
+              Graphics.moveto (50 + j * 60 - 2) (350 - i * 50 - 5);
+              Graphics.draw_string (string_of_int (int_of_importance island));
+              Graphics.moveto (50 + j * 60) (350 - i * 50);
+              Graphics.set_color Graphics.white;
+              displayLine t1 (j+1)
+            )
         | Bridge { isVertical = iv; isDoubled = id } ->
           if iv then
             (
@@ -692,5 +726,5 @@ let main = fun unit ->
     ) in
   loop ();;
 
-(* main();;*)
+(*main();;*)
 
