@@ -549,7 +549,7 @@ let solve = fun puzzle ->
  let rec apply = fun i -> fun res ->
     if i = 0 then res
     else apply (i-1) (aux puzzle_l res) in
-  apply 10 solution_vide;;
+  apply 1 solution_vide;;
 (*let rec apply = fun stop -> fun res ->
     if stop then res
     else
@@ -575,6 +575,8 @@ let solve = fun puzzle ->
   iter solution_vide 0;;*)
              
 (* let debugPont = msgDebug^msgFinDebug *)
+
+let puzzleTest7 = puzzle_of_list [coimp (0,0) 1;coimp (0,2) 2(*;coimp (2,0) 1*); coimp (2,2) 1]
 let puztest = puzzleTest6
 let soltest = init_solution puztest
 let _ = print_string ((string_of_bool (jeu_est_fini soltest puztest))^"\n")
