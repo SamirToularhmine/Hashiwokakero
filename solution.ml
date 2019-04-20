@@ -513,18 +513,23 @@ let solve = fun puzzle ->
       let importance = int_of_importance (snd h) in
       let ponts_min = fun (x,y) ->
         if x mod 2 = 0 then
-          if x/2 = y then x
+          if x/2 = y then
+            (
+              print_string "WTF on place x la : "; print_int x;
+              x
+            )
           else if x/2 > y  then 1
           else 0
         else
+        if x = 1 && y = 1 then 1
+          else
         if x <= y then 0 else
           int_of_float (ceil (float_of_int (importance) /. 2.0)) in
       let rec completer_voisins = fun v -> fun res ->
         match v with
         | [] -> res
         | h::t ->
-          let pontMIN = ponts_min(importance, nb_voisins) in
-          print_pair cell_pos;print_int pontMIN; print_string "\n";
+          let pontMIN = ponts_min((ponts_restants (coord_from_pair cell_pos) res), nb_voisins) in
           if (est_complet (coord_from_pair cell_pos) res) || (est_complet (coord_from_pair h) res) then
             completer_voisins t res
           else
@@ -533,19 +538,23 @@ let solve = fun puzzle ->
               completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h))
             else
             if pontMIN > 0 then
-              completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h)) 
+              (
+                (*completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h))*)
+                dessinerPonts res cell_pos (dir_to_coord cell_pos h)
+                
+              )
             else
               completer_voisins t res in
       aux t (completer_voisins voisins res) in
-  (*let rec apply = fun i -> fun res ->
+ let rec apply = fun i -> fun res ->
     if i = 0 then res
     else apply (i-1) (aux puzzle_l res) in
-    apply 30 solution_vide;;*)
-  let rec apply = fun stop -> fun res ->
+  apply 10 solution_vide;;
+(*let rec apply = fun stop -> fun res ->
     if stop then res
     else
       apply (jeu_est_fini res puzzle) (aux puzzle_l res) in
-   apply (jeu_est_fini solution_vide puzzle) solution_vide;;
+  apply (jeu_est_fini solution_vide puzzle) solution_vide;;*)
 
 
   (*let rec iter = fun sol -> fun i ->
@@ -566,7 +575,7 @@ let solve = fun puzzle ->
   iter solution_vide 0;;*)
              
 (* let debugPont = msgDebug^msgFinDebug *)
-let puztest = puzzleTest3
+let puztest = puzzleTest6
 let soltest = init_solution puztest
 let _ = print_string ((string_of_bool (jeu_est_fini soltest puztest))^"\n")
 let solvetest = solve puztest
@@ -578,7 +587,7 @@ let debugPont = msgDebug^"\n"
 (* let _ = print_string ("si c'est True ça veut dire que solve marche, jeu_est_fini ? :"^(string_of_bool (jeu_est_fini (solve puzzleTest3) puzzleTest3))^"\n") *)
 let main = fun unit ->
   (*let _ = print_string (toString (solve puzzleTest1)); in*)
-  let solution = solve (puzzleTest4) in
+  let solution = solve (puzzleTest2) in
   Graphics.open_graph "";
   Graphics.resize_window 500 500;
   Graphics.set_color(Graphics.black);
@@ -652,11 +661,34 @@ let main = fun unit ->
                   displayLine t1 (j+1) 
                 )
             ) in 
-    displayLine h 0 in 
+    displayLine h 0 in
   displaySol solution 0;
-let rec loop = fun b ->
-  loop b in
-loop ();;
+  let rec loop = fun b ->
+    (
+      if Graphics.read_key () = 'a' then
+        (
+          Graphics.clear_graph();
+          Graphics.set_color Graphics.black;
+          Graphics.draw_rect 0 0 500 500;
+          Graphics.fill_rect 0 0 500 500;
+          Graphics.set_color Graphics.white;
+           displaySol (solve puzzleTest1) 0; loop b
+        )
+      else
+        (
+          if Graphics.read_key () = 'z' then
+            (
+              Graphics.clear_graph();
+              Graphics.set_color Graphics.black;
+              Graphics.draw_rect 0 0 500 500;
+              Graphics.fill_rect 0 0 500 500;
+              Graphics.set_color Graphics.white;
+              displaySol (solve puzzleTest2) 0; loop b
+            )
+          else loop b
+        )
+    ) in
+  loop ();;
 
-(*main();;*)
+(* main();;*)
 
