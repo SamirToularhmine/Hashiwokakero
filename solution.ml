@@ -511,6 +511,7 @@ let solve = fun puzzle ->
 
 let display_solution = fun puzzle ->
   let solutionRAW = solve puzzle in
+  (* let solutionRAW = init_solution puzzle in *)(* demuter pour affichage seulement (preferable de mute la ligne audessus alors)) *)
   let solution = List.rev solutionRAW in
   let title = "Hashiwo Kakero desu" in
   Graphics.open_graph "";
