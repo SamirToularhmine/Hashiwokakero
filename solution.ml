@@ -183,7 +183,7 @@ let dessinerPonts sol pair dir =
       | _,_ -> failwith"je pensais pas en arriver là :("
                  
   in try aux nextPair dir sol with
-  | BridgeMet -> failwith "Problème pont rencontré"
+  | BridgeMet -> raise BridgeMet
          
 let nombre_de_pont sol pair =
   let aux dir =
@@ -510,18 +510,16 @@ let solve = fun puzzle ->
   apply (jeu_est_fini solution_vide puzzle) solution_vide;;
 
 let display_solution = fun puzzle ->
-  let solution = solve puzzle in
-  let max_col = Puzzle.getMaxCol puzzle in
-  let title = "Hashiwo Kakero" in
+  let solutionRAW = solve puzzle in
+  let solution = List.rev solutionRAW in
+  let title = "Hashiwo Kakero desu" in
   Graphics.open_graph "";
-  Graphics.resize_window (75 * max_col) (75 * max_col);
+  Graphics.resize_window 700 700;
   Graphics.set_color(Graphics.black);
   Graphics.draw_rect 0 0 (Graphics.size_x ()) (Graphics.size_y ());
   Graphics.fill_rect 0 0 (Graphics.size_x ()) (Graphics.size_y ());
-  Graphics.set_window_title title;
-  Graphics.rmoveto (Graphics.size_x() / 2 - (String.length title * 4)) ((Graphics.size_y ()) - (Graphics.size_y ()/ 6));
   Graphics.set_color(Graphics.white);
-  Graphics.draw_string title;
+  Graphics.set_window_title title;
   let rec displaySol = fun sol -> fun i ->
     match sol with
     | [] -> ()
@@ -532,13 +530,13 @@ let display_solution = fun puzzle ->
         | h1::t1 ->
           match h1 with
           | Nothing ->
-            Graphics.moveto (50 + j * 60) ((Graphics.size_y () - (Graphics.size_y () / 8)) - i * 50);
+            Graphics.moveto (20 + j * 60) (i * 50 + 20);
             displayLine t1 (j+1) 
           | Island island ->
-            Graphics.draw_circle (50 +j * 60) ((Graphics.size_y () - (Graphics.size_y () / 8)) - i * 50) 20;
-            Graphics.moveto (50 + j * 60 - 2) ((Graphics.size_y () - (Graphics.size_y () / 8)) - i * 50 - 5);
+            Graphics.draw_circle (20 + j * 60) (i * 50 + 20) 20;
+            Graphics.moveto (20 + j * 60 - 2) (i * 50 - 5 + 20);
             Graphics.draw_string (string_of_int (int_of_importance island));
-            Graphics.moveto (50 + j * 60) ((Graphics.size_y () - (Graphics.size_y () / 8)) - i * 50);
+            Graphics.moveto (20 + j * 60) (i * 50 + 20);
             displayLine t1 (j+1)
           | Bridge { isVertical = iv; isDoubled = id } ->
             if iv then
@@ -546,18 +544,19 @@ let display_solution = fun puzzle ->
               if id then
                 (
                   Graphics.set_color Graphics.green;
-                  Graphics.moveto (50 + j * 60 - 5) (350 - i * 50 + 30);
-                  Graphics.lineto (50 + j * 60 - 5) (350 - i * 50 - 30);
+                  Graphics.moveto (50 + j * 60 - 5 - 30) (i * 50 + 30 + 20);
+                  Graphics.lineto (50 + j * 60 - 5 - 30) (i * 50 - 30 + 20);
                   
-                  Graphics.moveto (50 + j * 60 + 5) (350 - i * 50 + 30);
-                  Graphics.lineto (50 + j * 60 + 5) (350 - i * 50 - 30);
-                  Graphics.set_color Graphics.white;displayLine t1 (j+1)
+                  Graphics.moveto (50 + j * 60 + 5 - 30) (i * 50 + 30 + 20);
+                  Graphics.lineto (50 + j * 60 + 5 - 30) (i * 50 - 30 + 20);
+                  Graphics.set_color Graphics.white;
+                  displayLine t1 (j+1)
                 )
               else
                 (
-                  Graphics.set_color Graphics.yellow;
-                  Graphics.moveto (50 + j * 60) (350 - i * 50 + 30);
-                  Graphics.lineto (50 + j * 60) (350 - i * 50 - 30);
+                  Graphics.set_color Graphics.green;
+                  Graphics.moveto (50 + j * 60 - 30) (i * 50 + 30 + 20);
+                  Graphics.lineto (50 + j * 60 - 30) (i * 50 - 30 + 20);
                   Graphics.set_color Graphics.white;
                   displayLine t1 (j+1)
                 )
@@ -567,25 +566,22 @@ let display_solution = fun puzzle ->
               if id then
                 (
                   Graphics.set_color Graphics.green;
-                  Graphics.moveto (50 + j * 60 + 40) (350 - i * 50 + 5);
-                  Graphics.lineto (50 + j * 60 - 40) (350 - i * 50 + 5);
-                  Graphics.moveto (50 + j * 60 + 40) (350 - i * 50 - 5);
-                  Graphics.lineto (50 + j * 60 - 40) (350 - i * 50 - 5);
+                  Graphics.moveto (50 + j * 60 + 40 - 30) (i * 50 + 5 + 20);
+                  Graphics.lineto (50 + j * 60 - 40 - 30) (i * 50 + 5 + 20);
+                  Graphics.moveto (50 + j * 60 + 40 - 30) (i * 50 - 5 + 20);
+                  Graphics.lineto (50 + j * 60 - 40 - 30) (i * 50 - 5 + 20);
                   Graphics.set_color Graphics.white;
                   
                   displayLine t1 (j+1)
                 )
               else
                 (
-                  Graphics.set_color Graphics.red;
-                  Graphics.moveto (50 + j * 60 + 40) (350 - i * 50);
-                  Graphics.lineto (50 + j * 60 - 40) (350 - i * 50);
+                  Graphics.set_color Graphics.green;
+                  Graphics.moveto (50 + j * 60 + 40 - 30) (i * 50 + 20);
+                  Graphics.lineto (50 + j * 60 - 40 - 30) (i * 50 + 20);
                   Graphics.set_color Graphics.white;
                   displayLine t1 (j+1) 
                 )
             ) in
       displayLine h 0 in
-      displaySol solution 0;
-let rec loop = fun b ->
-  loop b
-in loop ();;
+  displaySol solution 0;

@@ -126,30 +126,40 @@ let puzzleTest6 = puzzle_of_list
 
 let _ = print_string (Solution.toString (Solution.solve puzzleTest2));;
 
-let _ = display_solution (puzzleTest1);;
-
-
-(*  (
-      if Graphics.read_key () = 'a' then
-        (
-          Graphics.clear_graph();
-          Graphics.set_color Graphics.black;
-          Graphics.draw_rect 0 0 500 500;
-        Graphics.fill_rect 0 0 500 500;
-          Graphics.set_color Graphics.white;
-        displaySol (solve puzzleTest1) 0; loop b
-      )
-    else
-        (
-        if Graphics.read_key () = 'z' then
-          (
-            Graphics.clear_graph();
-            Graphics.set_color Graphics.black;
-            Graphics.draw_rect 0 0 500 500;
-              Graphics.fill_rect 0 0 500 500;
-            Graphics.set_color Graphics.white;
-            displaySol (solve puzzleTest2) 0; loop b
-          )
-        else loop b
-      )
-  )*)
+let rec loop = fun b ->
+  let input = Graphics.read_key () in
+  if input = 'q' then
+    Graphics.close_graph()
+  else if input = '1' then
+    (
+      display_solution (puzzleTest1);
+      loop b
+    )
+  else if input = '2' then
+    (
+      display_solution (puzzleTest2);
+      loop b
+    )
+  else if input = '3' then
+    (
+      display_solution (puzzleTest3);
+      loop b
+    )
+  else if input = '4' then
+    (
+      display_solution (puzzleTest4);
+      loop b
+    )
+  else if input = '5' then
+    (
+      display_solution (puzzleTest5);
+      loop b
+    )
+  else if input = '6' then
+    (
+      display_solution (puzzleTest6);
+      loop b
+    )
+  else loop b in
+display_solution (puzzleTest1);
+loop ();;
