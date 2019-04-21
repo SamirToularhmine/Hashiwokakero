@@ -443,6 +443,7 @@ let somme_pont_max pair sol puz =
 let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
   let puzzle_l = list_of_puzzle puzzle in
+
   let rec aux = fun p -> fun res ->
     match p with
     | [] -> res
@@ -499,15 +500,15 @@ let solve = fun puzzle ->
       if ( sum_pont_av = pont_rest ) then aux t (nfill cell_pos res puzzle)
         else
           aux t (completer_voisins voisins res) in
-  (* let rec apply = fun i -> fun res ->
-   *                          if i = 0 then res
-   *                          else apply (i-1) (aux puzzle_l res) in
-   * apply 10 solution_vide;; *)
-  let rec apply = fun stop -> fun res ->
+  let rec apply = fun i -> fun res ->
+    if i = 0 then res
+    else apply (i-1) (aux puzzle_l res) in
+  apply 1 solution_vide;; 
+ (* let rec apply = fun stop -> fun res ->
     if stop then res       
     else    
       apply (jeu_est_fini res puzzle) (aux puzzle_l res) in
-  apply (jeu_est_fini solution_vide puzzle) solution_vide;;
+    apply (jeu_est_fini solution_vide puzzle) solution_vide;;*)
 
 let display_solution = fun puzzle ->
   let solutionRAW = solve puzzle in

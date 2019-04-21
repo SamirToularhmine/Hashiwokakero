@@ -147,10 +147,9 @@ coimp (13,0) 3;coimp(13,7) 2;coimp(13,12) 1;
 coimp (14,2) 2;coimp(14,8) 3;coimp(14,14) 2 ]
 
 
-
 let puzzleTest9 = puzzle_of_list [
-coimp(0,0) 2;coimp(0,2) 5;coimp(0,24) 1;
-coimp(1,4) 1;coimp(1,6) 3;coimp(1,9) 4;coimp(1,12) 1;
+    coimp(0,0) 2;coimp(0,2) 5;coimp(0,24) 1;
+    coimp(1,4) 1;coimp(1,6) 3;coimp(1,9) 4;coimp(1,12) 1;
 coimp(2,0) 1;coimp(2,3) 2;coimp(2,5) 6;coimp(2,7) 4;coimp(2,11) 3;coimp(2,18) 5;coimp(2,21) 1;coimp(2,24) 2;
 coimp(3,9) 3; coimp(3,20) 2; coimp(3,23) 2; 
 coimp(7,21) 2; coimp(7,24) 4; 
@@ -169,11 +168,11 @@ coimp(22,0) 1; coimp(22,2) 1;
 coimp(23,1) 3; coimp(23,3) 5; coimp(23,8) 3; coimp(23,11) 3; coimp(23,18) 2; coimp(23,20) 3; coimp(23,22) 5; coimp(23,24) 3
 ]
 
+let _ = print_string (Solution.toString (Solution.init_solution(puzzleTest9)));;
 
+(* let _ = print_string (Solution.toString (Solution.solve puzzleTest9));; *)
 
-let _ = print_string (Solution.toString (Solution.solve puzzleTest2));;
-
-let rec loop = fun b ->
+(* let rec loop = fun b ->
   let input = Graphics.read_key () in
   if input = 'q' then
     Graphics.close_graph()
@@ -225,3 +224,4 @@ let rec loop = fun b ->
   else loop b in
 display_solution (puzzleTest1);
 loop ();;
+*)
