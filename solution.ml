@@ -439,7 +439,28 @@ let somme_pont_max pair sol puz =
       let pmx = pont_max pair h sol puz in
       aux t (res+pmx)
   in aux lv 0
-    
+
+let rec equals = fun sol1 -> fun sol2 ->
+  match sol1,sol2 with
+  | [], [] -> true
+  | h1::t1, h2::t2 ->
+    begin
+      let rec iter_ligne = fun l1 -> fun l2 ->
+        match l1,l2 with
+        | [],[]  -> equals t1 t2
+        | h3::t3, h4::t4 ->
+          begin
+            match h3,h4 with
+            | Nothing,Nothing -> iter_ligne t3 t4
+            | Island i1, Island i2 -> if int_of_importance i1 != int_of_importance i2 then false else iter_ligne t3 t4
+            | Bridge {isVertical = iv1; isDoubled = id1}, Bridge {isVertical = iv2; isDoubled = id2} -> if iv1 <> iv2 || id1 <> id2 then false else iter_ligne t3 t4
+            | _,_ -> false
+          end
+        | _,_ -> false in
+      iter_ligne h1 h2
+    end
+  | _,_ -> false
+  
 let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
   let puzzle_l = list_of_puzzle puzzle in
@@ -462,28 +483,26 @@ let solve = fun puzzle ->
         else
           if x <= y then 0 else
           int_of_float (ceil (float_of_int (importance) /. 2.0)) in
-      let rec completer_voisins = fun v -> fun res ->
+      let rec completer_voisins = fun v -> fun res -> 
         match v with
-        | [] -> res
+        | [] ->
+          (
+            res
+          )
         | h::t ->
            (* let pontMAX = pont_max cell_pos h res puzzle in *)
            let pontMIN = ponts_min((ponts_restants (coord_from_pair cell_pos) res), nb_voisins) in
            (* let pontMIN = ponts_min((pont_max cell_pos h res puzzle), nb_voisins) in  *)
           if (est_complet (coord_from_pair cell_pos) res) || (est_complet (coord_from_pair h) res) then
-            completer_voisins t res
+            completer_voisins t res 
           else
             let ile_voisine = getCell res h in
             if importance >= (int_of_island ile_voisine) && List.length (get_voisins res h puzzle) = 1 then
-              completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h))
+              completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h)) 
                 
             else
-            if (pontMIN > 0) then
-              (
-                
-                (*completer_voisins t (dessinerPonts res cell_pos (dir_to_coord cell_pos h))*)
-                dessinerPonts res cell_pos (dir_to_coord cell_pos h)
-                  
-              )
+            if (pontMIN > 0) then 
+              completer_voisins t (fill cell_pos res puzzle)
             else
               completer_voisins t res in
       let lvtest = (get_voisins_test res cell_pos puzzle) in
@@ -497,18 +516,60 @@ let solve = fun puzzle ->
         )
         
       else
-      if ( sum_pont_av = pont_rest ) then aux t (nfill cell_pos res puzzle)
-        else
-          aux t (completer_voisins voisins res) in
-  let rec apply = fun i -> fun res ->
+      if ( sum_pont_av = pont_rest ) then aux t (nfill cell_pos res puzzle) 
+      else(
+        let sol_aux = completer_voisins voisins res in
+        aux t sol_aux) in
+  let rec solvecchaudla = fun sol ->
+    let rec aux2 = fun sol1 -> fun res -> fun i ->
+    match sol1 with
+    | [] -> aux puzzle_l res
+    | h::t ->
+      let rec iter_ligne_sol = fun ligne -> fun j -> fun sol2 ->
+        match ligne with
+        | [] -> sol2
+        | h1::t1 ->
+          match h1 with
+          | Nothing -> iter_ligne_sol t1 (j+1) sol2
+          | Island a ->
+            let cell_pos = (i,j) in
+            let voisins = get_voisins sol cell_pos puzzle in
+            let rec try_connexe = fun sol3 -> fun voisins ->
+              match voisins with
+              | [] -> sol3
+              | h::t ->
+                let direction = dir_to_coord cell_pos h in
+                let sol_modifie = dessinerPonts sol3 cell_pos direction in
+                let parcours = parcours_largeur sol_modifie cell_pos in
+                let test = test_est_composante_connexe parcours sol_modifie in
+                if not test then sol_modifie else try_connexe sol3 t in
+            iter_ligne_sol t1 (j+1) (try_connexe sol voisins) 
+          | Bridge {isVertical = iv; isDoubled = id} -> iter_ligne_sol t1 (j+1) sol2 in
+      aux2 t (iter_ligne_sol h 0 sol1) (i+1) in
+    aux2 sol [] 0 in
+ (* let rec apply = fun i -> fun last_res -> fun res ->
     if i = 0 then res
-    else apply (i-1) (aux puzzle_l res) in
-  apply 1 solution_vide;; 
- (* let rec apply = fun stop -> fun res ->
+    else
+      let to_apply = aux puzzle_l res in
+      apply (i-1) res (to_apply) in
+  apply 10 solution_vide solution_vide;; *)
+  let rec apply = fun stop -> fun last_res -> fun res ->
     if stop then res       
-    else    
-      apply (jeu_est_fini res puzzle) (aux puzzle_l res) in
-    apply (jeu_est_fini solution_vide puzzle) solution_vide;;*)
+    else
+      let jeu_fini = jeu_est_fini res puzzle in
+      let pas_bouge = equals last_res res in
+      if jeu_fini || (pas_bouge && (not (equals res solution_vide))) then
+        if jeu_fini then res
+        else
+          (
+            (* on appelle solve c chaud là *)
+            let soltest = solvecchaudla res in
+            if jeu_est_fini soltest puzzle then soltest else failwith "Pas de solution !"
+            
+          )
+      else
+        apply ((jeu_est_fini res puzzle)) res (aux puzzle_l res) in
+    apply (jeu_est_fini solution_vide puzzle) solution_vide solution_vide;;
 
 let display_solution = fun puzzle ->
   let solutionRAW = solve puzzle in
