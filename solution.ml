@@ -208,18 +208,18 @@ let est_complet = fun c -> fun sol ->
   let importance =
     match cell with
     | Island a -> int_of_importance a
-    | _ -> failwith "Pas une ile !" in
+    | _ -> failwith ("Pas une ile !ec" ^ (string_of_pair (pair_from_coord c))) in
   let totalPont = nombre_de_pont sol (pair_from_coord c) in 
   if totalPont < importance then false
   else if importance = totalPont then true
-  else failwith "Trop de ponts !"
+  else failwith ("Trop de ponts ! sur la cell : " ^ (string_of_pair (pair_from_coord c)))
 
 let ponts_restants = fun c -> fun sol ->
   let cell = getCell sol (fstcoord c, sndcoord c) in
   let importance =
     match cell with
     | Island a -> int_of_importance a
-    | _ -> failwith "Pas une ile !" in
+    | _ -> failwith "Pas une ile ! pr" in
   let total_ponts = nombre_de_pont sol (pair_from_coord c) in
   importance - total_ponts
 
@@ -527,7 +527,13 @@ let solve = fun puzzle ->
     | h::t ->
       let rec iter_ligne_sol = fun ligne -> fun j -> fun sol2 ->
         match ligne with
-        | [] -> sol2
+        | [] ->
+          (
+           (* print_string "\n";
+            print_string (toString sol2);
+            print_string "\n";*)
+            sol2
+          )
         | h1::t1 ->
           match h1 with
           | Nothing -> iter_ligne_sol t1 (j+1) sol2
@@ -542,11 +548,25 @@ let solve = fun puzzle ->
                 let sol_modifie = dessinerPonts sol3 cell_pos direction in
                 let parcours = parcours_largeur sol_modifie cell_pos in
                 let test = test_est_composante_connexe parcours sol_modifie in
-                if not test then sol_modifie else try_connexe sol3 t in
-            iter_ligne_sol t1 (j+1) (try_connexe sol voisins) 
+                let test_compo_connexe2 = List.length puzzle_l = List.length parcours in 
+                (*print_string ("\n");print_string (toString sol_modifie); print_string ("\n");
+                print_string (string_of_bool test_compo_connexe2);*)
+                if test_compo_connexe2 then
+                  let voisins = get_voisins sol_modifie cell_pos puzzle in
+                  (*print_string ("\non continue");
+                  print_string (toString sol_modifie);
+                  print_string ("\n");*)
+                  (*iter_ligne_sol t1 (j+1) sol_modifie*)
+                  sol_modifie
+                  
+                else (*print_string "rejetée" ;*)try_connexe sol3 t in
+            
+            let tryco = try_connexe sol2 voisins in
+            print_string "\n";print_string (toString tryco);print_string "\n";
+            tryco 
           | Bridge {isVertical = iv; isDoubled = id} -> iter_ligne_sol t1 (j+1) sol2 in
-      aux2 t (iter_ligne_sol h 0 sol1) (i+1) in
-    aux2 sol [] 0 in
+      aux2 t (iter_ligne_sol h 0 res) (i+1) in
+    aux2 sol sol 0 in
  (* let rec apply = fun i -> fun last_res -> fun res ->
     if i = 0 then res
     else
@@ -564,7 +584,9 @@ let solve = fun puzzle ->
           (
             (* on appelle solve c chaud là *)
             let soltest = solvecchaudla res in
-            if jeu_est_fini soltest puzzle then soltest else failwith "Pas de solution !"
+            let soltestest = aux puzzle_l soltest in
+            soltestest
+            (*if jeu_est_fini soltest puzzle then soltest else soltestest*)(* failwith "Pas de solution !"*)
             
           )
       else
