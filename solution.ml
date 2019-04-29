@@ -2,9 +2,27 @@ open Puzzle
 open Coordinate
 open List
 
+(**
+   Le type bridge nous permet de représenter un pont dans une solution
+*)
 type bridge = { isVertical : bool; isDoubled : bool}
+
+(**
+   Le type cell nous permet de représenter les différentes cellules de la solution : elles se définissent par le type Nothing, Island et Bridge.
+   
+*)
 type cell = Nothing | Island of Puzzle.importance | Bridge of bridge
+
+(**
+   Le type solution nous permet de représenter une solution grâce à une liste à
+   deux dimensions de cellules
+*)
 type solution = cell list list
+
+(**
+   Le type direction nous permet de représenter la direction dans laquelle nous
+   devons dessiner un pont par rapport à la position de la cellule.
+*)
 type direction = Gauche | Haut | Droite | Bas
 
 exception NotAnIsland
@@ -32,6 +50,13 @@ let string_of_cell = function
   | Nothing -> "[       ]"
   | Island x -> ("[Ile - " ^ (string_of_int (int_of_importance x))) ^ "]"
   | (Bridge b) -> string_of_bridge b
+
+let string_of_direction = fun d ->
+  match d with
+  | Haut -> "Haut"
+  | Bas -> "Bas"
+  | Gauche -> "Gauche"
+  | Droite -> "Droite"
                 
 let importance_of_island = function
   | Island imp -> imp
@@ -61,6 +86,12 @@ let oob sol =
   function
   | (x,y) -> (x > mxR) || (x < 0) || (y > mxC) || (y < 0)
 
+(** 
+   val init_solution : puzzle -> solution
+
+   La fonction init_solution nous permet de créer une solution vide à partir
+   d'un puzzle donné en paramètre. 
+*)
 let init_solution = fun p ->
   let liste = list_of_puzzle (Puzzle.sort p) in
   let maxCol = Puzzle.getMaxCol p in
@@ -100,14 +131,7 @@ let next_pair dir pair =
   | Gauche,(x,y) -> (x,y-1)
   | Haut,(x,y) -> (x-1,y)
   | Droite,(x,y) -> (x,y+1)
-  | Bas,(x,y) -> (x+1,y)
-                 
-let string_of_direction = fun d ->
-  match d with
-  | Haut -> "Haut"
-  | Bas -> "Bas"
-  | Gauche -> "Gauche"
-  | Droite -> "Droite"
+  | Bas,(x,y) -> (x+1,y)                 
     
 let replace sol pair cell =
   let getIndex l l' = ((length l) - (length l')) in
@@ -178,7 +202,14 @@ let nombre_de_pont sol pair =
       | _ -> 0                                             
   in (aux Gauche) + (aux Haut) + (aux Droite) + (aux Bas)
 
-  
+(**
+   val est_complet : cell -> solution -> bool
+
+   La fonction est_complet nous permet de savoir si la cellule passée 
+   en paramètre est complète ou non dans la solution, elle aussi passée
+   en paramètre.
+   
+*)
 let est_complet = fun c -> fun sol ->
   let cell = getCell sol (fstcoord c, sndcoord c) in
   let importance =
@@ -289,6 +320,14 @@ let get_voisins sol pair puz =
  
 let string_of_list string_of liste = (List.fold_right (fun x y-> ("[")^(string_of x)^"]"^y) (liste) "")
 
+
+(**
+   val dir_to_coord = (int * int) -> (int * int) -> direction
+   
+   La fonction dir_to_coord nous permet d'obtenir la direction dans laquelle
+   il faut dessiner un pont pour partir de la cellule de coordonnées c1 à la 
+   cellule de coordonnées c2.
+*)
 let dir_to_coord = fun c1 -> fun c2 ->
   match c1,c2 with
   | (i1,j1),(i2,j2) ->
@@ -408,6 +447,12 @@ let somme_pont_max pair sol puz =
       aux t (res+pmx)
   in aux lv 0
 
+(**
+   val equals : solution -> solution -> bool
+
+   La fonction equals nous permet de savoir si deux solutions sont équivalentes
+   ou non.
+*)
 let rec equals = fun sol1 -> fun sol2 ->
   match sol1,sol2 with
   | [], [] -> true
@@ -432,7 +477,51 @@ let rec equals = fun sol1 -> fun sol2 ->
       iter_ligne h1 h2
     end
   | _,_ -> false
-  
+
+(**
+   val solve : puzzle -> solution
+   
+   La méthode solve nous permet d'appliquer une algorithme résolvant le puzzle
+   passé en paramètre.
+
+   Pour résoudre ce puzzle, l'algorithme va tout d'abord trouver les ponts 
+   évidents à placer autour des différentes îles. Le nombre de ponts évidents
+   se trouve grâce à la fonction : 
+   
+   val pont_min : (int * int) -> int
+
+   La fonction pont_min prend un couple d'entier en paramètre correspondant 
+   respectivement au nombre de pont restant ainsi qu'au nombre de voisins de 
+   la cellule.
+   
+   Avec ce nombre de ponts minimum, l'algorithme va savoir placer les
+   différents ponts évidents pour chaques îles.
+
+   Cet algorithme va pouvoir s'appliquer un certain nombre de fois grâce à la
+   fonction : 
+
+   val apply = bool -> solution -> solution -> solution
+   
+   La fonction recursive terminale apply va nous permettre d'appliquer 
+   l'algorithme tant que le bool en paramètre ne vaut pas true. 
+   Lors de l'appel recursif il se rappellera avec une nouvelle solution
+   ainsi qu'une ancienne solution afin de savoir si l'algorithme est bloqué
+   ou non.
+
+   Dans le cas ou l'algorithme est bloqué, c'est qu'il n'y a plus aucun ponts
+   évidents à placer. Dans ce cas, l'algorithme va utiliser une fonction
+   permettant de placer des ponts en gardant la connexité de la solution.
+   Voici la fonction qui nous permet d'appliquer cette approche : 
+   
+   val solve_connexite : sol -> sol
+
+   Cette fonction va itérer sur une solution pour trouver les différentes îles
+   non complètes. Une fois ces différentes îles trouvées, l'algorithme va
+   placer un pont vers un des voisins de cette île et va regarder si la solution
+   reste connexe. Si oui il va garder ce pont et continuer d'appliquer 
+   l'algorithme sinon il ne va pas garder ce pont et va continuer d'itérer sur
+   la solution.
+*)
 let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
   let puzzle_l = list_of_puzzle puzzle in
@@ -481,7 +570,7 @@ let solve = fun puzzle ->
       else
         let sol_aux = completer_voisins voisins res in
         aux t sol_aux in
-  let rec solvecchaudla = fun sol ->
+  let rec solve_connexite = fun sol ->
     let rec aux2 = fun sol1 -> fun res -> fun i ->
       match sol1 with
       | [] -> res
@@ -530,15 +619,22 @@ let solve = fun puzzle ->
         else
           (
             (* on appelle solve c chaud là *)
-            let soltest = solvecchaudla res in
-            let soltestest = aux puzzle_l soltest in
-            if jeu_est_fini soltestest puzzle then soltestest
+            let solraw = solve_connexite res in
+            let solbon = aux puzzle_l solraw in
+            if jeu_est_fini solbon puzzle then solraw
             else raise NoSolutionsFound
           )
       else
         apply ((jeu_est_fini res puzzle)) res (aux puzzle_l res) in
     apply (jeu_est_fini solution_vide puzzle) solution_vide solution_vide
-      
+
+(**
+   val display_solution : puzzle -> unit
+   
+   La fonction display_solution nous permet d'utiliser la librairie Graphique
+   d'OCaml pour pouvoir afficher les différents puzzles résolus d'une manière
+   plus propre que dans le terminal.
+*)
 let display_solution = fun puzzle ->
   let solutionRAW = solve puzzle in
   (* let solutionRAW = init_solution puzzle in *)(* demuter pour affichage seulement (preferable de mute la ligne audessus alors)) *)
