@@ -221,7 +221,7 @@ let puzzleTest12 = puzzle_of_list
     ]
 
 (* let _ = print_string (Solution.toString (Solution.init_solution(puzzleTest9)));; *)
-let _ = print_string (Solution.toString (Solution.solve puzzleTest12));;
+let _ = print_string (Solution.string_of_solution (Solution.solve puzzleTest12));;
 
 let rec loop = fun b ->
   let input = Graphics.read_key () in

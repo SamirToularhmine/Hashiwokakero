@@ -6,7 +6,7 @@ type solution
       
 val init_solution : Puzzle.puzzle -> solution
 
-val toString : solution -> string
+val string_of_solution : solution -> string
 
 val solve : puzzle -> solution
 
