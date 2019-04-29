@@ -1,4 +1,3 @@
-
 open Puzzle
 open Coordinate
 open List

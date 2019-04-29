@@ -272,17 +272,17 @@ let rec loop = fun b ->
       display_solution (puzzleTest9);
       loop b
     )
-    else if input = '0' then
+  else if input = '0' then
     (
       display_solution (puzzleTest10);
       loop b
     )
-    else if input = 'A' then
+  else if input = 'A' then
     (
       display_solution (puzzleTest11);
       loop b
     )
-    else if input = 'Z' then
+  else if input = 'Z' then
     (
       display_solution (puzzleTest12);
       loop b
