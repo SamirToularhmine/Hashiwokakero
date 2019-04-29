@@ -522,9 +522,8 @@ let rec equals = fun sol1 -> fun sol2 ->
    l'algorithme sinon il ne va pas garder ce pont et va continuer d'itérer sur
    la solution.
 *)
-let solve = fun puzzle ->
-  print_string "oui";
-  let solution_vide = init_solution puzzle in
+
+let rec solve_sol = fun solution_vide -> fun puzzle ->
   let puzzle_l = list_of_puzzle puzzle in
   let rec aux = fun p -> fun res ->
     match p with
@@ -597,20 +596,31 @@ let solve = fun puzzle ->
                       let sol_modifie = dessinerPonts sol3 cell_pos direction in
                       let parcours = parcours_largeur sol_modifie cell_pos in
                       let test = test_est_composante_connexe parcours sol_modifie in
-                      if not test then sol_modifie 
+                      if (not test) then
+                        (
+                          if
+                            try jeu_est_fini (solve_sol sol_modifie puzzle) puzzle with
+                            | NoSolutionsFound -> false
+                            then sol_modifie else try_connexe sol3 t
+                        )
                       else try_connexe sol3 t in
                 let tryco = try_connexe sol2 voisins in
                 iter_ligne_sol t1 (j+1) (tryco)
             | Bridge {isVertical = iv; isDoubled = id} -> iter_ligne_sol t1 (j+1) sol2 in
         aux2 t (iter_ligne_sol h 0 res) (i+1) in
     aux2 sol sol 0 in
-  (* let rec apply = fun i -> fun last_res -> fun res ->
-    if i = 0 then res
+   let rec apply = fun i -> fun last_res -> fun res ->
+     if i = 0 then
+       (
+         (*print_string (string_of_bool (jeu_est_fini (solve_connexite res) puzzle));
+           solve_connexite res*)
+         solve_connexite res
+       )
     else
       let to_apply = aux puzzle_l res in
       apply (i-1) res (to_apply) in
-  apply 10 solution_vide solution_vide;; *)
-  let rec apply = fun stop -> fun last_res -> fun res ->
+  apply 1 solution_vide solution_vide;; 
+ (* let rec apply = fun stop -> fun last_res -> fun res ->
     if stop then res       
     else
       let jeu_fini = jeu_est_fini res puzzle in
@@ -620,14 +630,18 @@ let solve = fun puzzle ->
         else
           (
             (* on appelle solve c chaud là *)
-            let solraw = solve_connexite res in
+           let solraw = solve_connexite res in
             let solbon = aux puzzle_l solraw in
             if jeu_est_fini solbon puzzle then solraw
             else raise NoSolutionsFound
           )
       else
         apply ((jeu_est_fini res puzzle)) res (aux puzzle_l res) in
-    apply (jeu_est_fini solution_vide puzzle) solution_vide solution_vide
+  apply (jeu_est_fini solution_vide puzzle) solution_vide solution_vide*)
+
+let solve = fun puzzle ->
+  let solution_vide = init_solution puzzle in
+  solve_sol solution_vide puzzle
 
 (**
    val display_solution : puzzle -> unit
