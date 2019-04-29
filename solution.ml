@@ -1,3 +1,4 @@
+
 open Puzzle
 open Coordinate
 open List
@@ -523,47 +524,36 @@ let solve = fun puzzle ->
   let rec solvecchaudla = fun sol ->
     let rec aux2 = fun sol1 -> fun res -> fun i ->
     match sol1 with
-    | [] -> aux puzzle_l res
+    | [] -> res
     | h::t ->
       let rec iter_ligne_sol = fun ligne -> fun j -> fun sol2 ->
         match ligne with
-        | [] ->
-          (
-           (* print_string "\n";
-            print_string (toString sol2);
-            print_string "\n";*)
-            sol2
-          )
+        | [] -> sol2
         | h1::t1 ->
           match h1 with
           | Nothing -> iter_ligne_sol t1 (j+1) sol2
           | Island a ->
             let cell_pos = (i,j) in
+            if (est_complet (coord_from_pair cell_pos) sol2) then iter_ligne_sol t1 (j+1) sol2
+            else
             let voisins = get_voisins sol cell_pos puzzle in
             let rec try_connexe = fun sol3 -> fun voisins ->
               match voisins with
               | [] -> sol3
               | h::t ->
                 let direction = dir_to_coord cell_pos h in
+                if (est_complet (coord_from_pair h) sol3) then try_connexe sol3 t
+                else
                 let sol_modifie = dessinerPonts sol3 cell_pos direction in
                 let parcours = parcours_largeur sol_modifie cell_pos in
                 let test = test_est_composante_connexe parcours sol_modifie in
-                let test_compo_connexe2 = List.length puzzle_l = List.length parcours in 
-                (*print_string ("\n");print_string (toString sol_modifie); print_string ("\n");
-                print_string (string_of_bool test_compo_connexe2);*)
-                if test_compo_connexe2 then
+                if not test then
                   let voisins = get_voisins sol_modifie cell_pos puzzle in
-                  (*print_string ("\non continue");
-                  print_string (toString sol_modifie);
-                  print_string ("\n");*)
-                  (*iter_ligne_sol t1 (j+1) sol_modifie*)
-                  sol_modifie
-                  
-                else (*print_string "rejetée" ;*)try_connexe sol3 t in
+                  sol_modifie 
+                else try_connexe sol3 t in
             
             let tryco = try_connexe sol2 voisins in
-            print_string "\n";print_string (toString tryco);print_string "\n";
-            tryco 
+            iter_ligne_sol t1 (j+1) (tryco)
           | Bridge {isVertical = iv; isDoubled = id} -> iter_ligne_sol t1 (j+1) sol2 in
       aux2 t (iter_ligne_sol h 0 res) (i+1) in
     aux2 sol sol 0 in
@@ -585,9 +575,8 @@ let solve = fun puzzle ->
             (* on appelle solve c chaud là *)
             let soltest = solvecchaudla res in
             let soltestest = aux puzzle_l soltest in
-            soltestest
-            (*if jeu_est_fini soltest puzzle then soltest else soltestest*)(* failwith "Pas de solution !"*)
-            
+            if jeu_est_fini soltestest puzzle then soltestest
+            else failwith "Pas de solution !"
           )
       else
         apply ((jeu_est_fini res puzzle)) res (aux puzzle_l res) in

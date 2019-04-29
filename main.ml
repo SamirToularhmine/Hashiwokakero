@@ -223,7 +223,7 @@ let puzzleTest12 = puzzle_of_list
 (* let _ = print_string (Solution.toString (Solution.init_solution(puzzleTest9)));; *)
 let _ = print_string (Solution.toString (Solution.solve puzzleTest12));;
 
-(* let rec loop = fun b ->
+let rec loop = fun b ->
   let input = Graphics.read_key () in
   if input = 'q' then
     Graphics.close_graph()
@@ -272,7 +272,22 @@ let _ = print_string (Solution.toString (Solution.solve puzzleTest12));;
       display_solution (puzzleTest9);
       loop b
     )
+    else if input = '0' then
+    (
+      display_solution (puzzleTest10);
+      loop b
+    )
+    else if input = 'A' then
+    (
+      display_solution (puzzleTest11);
+      loop b
+    )
+    else if input = 'Z' then
+    (
+      display_solution (puzzleTest12);
+      loop b
+    )
   else loop b in
 display_solution (puzzleTest1) ;
 loop ();;
-*)
+
