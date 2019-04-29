@@ -523,6 +523,7 @@ let rec equals = fun sol1 -> fun sol2 ->
    la solution.
 *)
 let solve = fun puzzle ->
+  print_string "oui";
   let solution_vide = init_solution puzzle in
   let puzzle_l = list_of_puzzle puzzle in
   let rec aux = fun p -> fun res ->
