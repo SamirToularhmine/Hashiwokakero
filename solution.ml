@@ -601,6 +601,9 @@ let rec equals = fun sol1 -> fun sol2 ->
    
    Avec ce nombre de ponts minimum, l'algorithme va savoir placer les
    différents ponts évidents pour chaques îles.
+   
+   Dans le cas échéant, si le nombre de pont restant d'une l'île est égale au nombre de pont disponible, obtenue via la fonction somme_pont_max
+   alors la fonction nfill est alors sur l'île en question
 
    Cet algorithme va pouvoir s'appliquer un certain nombre de fois grâce à la
    fonction : 
