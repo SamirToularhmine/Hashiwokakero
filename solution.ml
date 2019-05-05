@@ -570,46 +570,43 @@ let rec solve_sol = fun solution_vide -> fun puzzle ->
       else
         let sol_aux = completer_voisins voisins res in
         aux t sol_aux in
-  let rec solve_connexite = fun sol ->
-    let rec aux2 = fun sol1 -> fun res -> fun i ->
-      match sol1 with
-      | [] -> res
-      | h::t ->
-        let rec iter_ligne_sol = fun ligne -> fun j -> fun sol2 ->
-          match ligne with
-          | [] -> sol2
-          | h1::t1 ->
-            match h1 with
-            | Nothing -> iter_ligne_sol t1 (j+1) sol2
-            | Island a ->
-              let cell_pos = (i,j) in
-              if (est_complet (coord_from_pair cell_pos) sol2) then iter_ligne_sol t1 (j+1) sol2
-              else
-                let voisins = get_voisins sol cell_pos puzzle in
-                let rec try_connexe = fun sol3 -> fun voisins ->
-                  match voisins with
-                  | [] -> sol3
-                  | h::t ->
-                    let direction = dir_to_coord cell_pos h in
-                    if (est_complet (coord_from_pair h) sol3) then try_connexe sol3 t
-                    else
-                      let sol_modifie = dessinerPonts sol3 cell_pos direction in
-                      let parcours = parcours_largeur sol_modifie cell_pos in
-                      let test = test_est_composante_connexe parcours sol_modifie in
-                      if (not test) then
-                        (
-                          if
-                            try jeu_est_fini (solve_sol sol_modifie puzzle) puzzle with
-                            | NoSolutionsFound -> false
-                            then sol_modifie else try_connexe sol3 t
-                        )
-                      else try_connexe sol3 t in
-                let tryco = try_connexe sol2 voisins in
-                iter_ligne_sol t1 (j+1) (tryco)
-            | Bridge {isVertical = iv; isDoubled = id} -> iter_ligne_sol t1 (j+1) sol2 in
-        aux2 t (iter_ligne_sol h 0 res) (i+1) in
-    aux2 sol sol 0 in
-   let rec apply = fun i -> fun last_res -> fun res ->
+  let rec solve_connexite = fun sol -> fun puzzle ->
+  let rec aux2 = fun sol1 -> fun res -> fun i ->
+    match sol1 with
+    | [] -> res
+    | h::t ->
+      let rec iter_ligne_sol = fun ligne -> fun j -> fun sol2 ->
+        match ligne with
+        | [] -> sol2
+        | h1::t1 ->
+          match h1 with
+          | Nothing -> iter_ligne_sol t1 (j+1) sol2
+          | Island a ->
+            let cell_pos = (i,j) in
+            if (est_complet (coord_from_pair cell_pos) sol2) then iter_ligne_sol t1 (j+1) sol2
+            else
+              let voisins = get_voisins sol cell_pos puzzle in
+              let rec try_connexe = fun sol3 -> fun voisins ->
+                match voisins with
+                | [] -> sol3
+                | h2::t2 ->
+                  let direction = dir_to_coord cell_pos h2 in
+                  if (est_complet (coord_from_pair h2) sol3) then try_connexe sol3 t2
+                  else
+                    let sol_modifie = dessinerPonts sol3 cell_pos direction in
+                    let parcours = parcours_largeur sol_modifie cell_pos in
+                    let test = test_est_composante_connexe parcours sol_modifie in
+                    if (not test) then
+                      (
+                        aux2 t (sol_modifie) (i+1)
+                      )
+                    else try_connexe sol3 t2 in
+              let tryco = try_connexe sol2 voisins in
+              iter_ligne_sol t1 (j+1) (tryco)
+          | Bridge {isVertical = iv; isDoubled = id} -> iter_ligne_sol t1 (j+1) sol2 in
+      aux2 t (iter_ligne_sol h 0 res) (i+1) in
+  aux2 sol sol 0 in
+   (*let rec apply = fun i -> fun last_res -> fun res ->
      if i = 0 then
        (
          (*print_string (string_of_bool (jeu_est_fini (solve_connexite res) puzzle));
@@ -619,8 +616,8 @@ let rec solve_sol = fun solution_vide -> fun puzzle ->
     else
       let to_apply = aux puzzle_l res in
       apply (i-1) res (to_apply) in
-  apply 1 solution_vide solution_vide;; 
- (* let rec apply = fun stop -> fun last_res -> fun res ->
+   apply 1 solution_vide solution_vide;; *)
+  let rec apply = fun stop -> fun last_res -> fun res ->
     if stop then res       
     else
       let jeu_fini = jeu_est_fini res puzzle in
@@ -630,14 +627,14 @@ let rec solve_sol = fun solution_vide -> fun puzzle ->
         else
           (
             (* on appelle solve c chaud là *)
-           let solraw = solve_connexite res in
+           let solraw = solve_connexite res puzzle in
             let solbon = aux puzzle_l solraw in
-            if jeu_est_fini solbon puzzle then solraw
+            if jeu_est_fini solbon puzzle then solbon
             else raise NoSolutionsFound
           )
       else
         apply ((jeu_est_fini res puzzle)) res (aux puzzle_l res) in
-  apply (jeu_est_fini solution_vide puzzle) solution_vide solution_vide*)
+  apply (jeu_est_fini solution_vide puzzle) solution_vide solution_vide
 
 let solve = fun puzzle ->
   let solution_vide = init_solution puzzle in
