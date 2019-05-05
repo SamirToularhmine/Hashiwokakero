@@ -78,7 +78,12 @@ let rec string_of_solution = fun s ->
          match h1 with
          | cell -> (string_of_cell h1) ^ toStringLigne t1 in
      (toStringLigne h) ^ "\n" ^(string_of_solution t)
-                                  
+(**
+   val oob : 'a list list -> int * int -> bool 
+
+   oob [[a1; ...;an]; ...;[z1; ...zn]] (x,y) verifie si la pair (x,y) est en dehors de la liste de liste
+   retourne un booleen, true si la pair (x,y) est "out of bound", false sinon.
+*)                                  
 let oob sol =
   let mxR = (List.length sol)-1 in
   let mxC = if (mxR > 0) then (List.length (nth sol 0) -1)
@@ -121,11 +126,21 @@ let init_solution = fun p ->
       in (creerLigne (iles i l) 0)::(creerSolution liste (i+1) 0)
   in (creerSolution liste 0 0)      
 
+(**
+	val getCell : 'a list list -> int * int -> 'a
+
+	getCell [[a1; ...;an]; ...;[z1; ...zn]] (i,j) retourne l'élement correspondant aux coordonnées (i,j)
+*)
 let getCell = fun sol -> function
   | (x,y) ->
     if (oob sol (x,y)) then raise OutOfBounds
     else nth (nth sol x) y
-      
+
+(**
+	val next_pair dir pair : direction -> int * int -> int * int
+
+	next_pair dir (x,y) retourne une futur pair en fonction de la direction  passé en paramètre
+*)
 let next_pair dir pair = 
   match (dir,pair) with
   | Gauche,(x,y) -> (x,y-1)
@@ -133,6 +148,11 @@ let next_pair dir pair =
   | Droite,(x,y) -> (x,y+1)
   | Bas,(x,y) -> (x+1,y)                 
     
+(**
+	val replace : 'a list list -> int * int -> 'a -> 'a list list
+
+	replace sol (x,y) elt retourne une 'a list list avec l'élément aux coordonées (x,y) remplacé par elt
+*)
 let replace sol pair cell =
   let getIndex l l' = ((length l) - (length l')) in
   let l = sol in
@@ -154,6 +174,11 @@ let replace sol pair cell =
       aux1 t1 c v ((aux2 l2 c v [])::res1) in
   List.rev (aux1 l c v [])
         
+(**
+	val dessinerPonts : cell list list -> int * int -> direction -> cell list list
+
+	dessinerPonts sol (x,y) dir retourne une cell list list avec un pont dessiné à partir des coordonnées (x,y) dans une direction dir
+*)
 let dessinerPonts sol pair dir =
   let bvs = Bridge {isVertical = true; isDoubled = false} in
   let bhs = Bridge {isVertical = false; isDoubled = false} in
@@ -184,6 +209,11 @@ let dessinerPonts sol pair dir =
   in try aux nextPair dir sol with
   | BridgeMet -> raise BridgeMet
          
+(**
+	val nombre_de_pont : cell list list -> int * int -> int
+
+	nombre_de_pont sol (x,y) on considèrera que l'element aux coordonnées (x,y) est de type Island, la fonction retourne le nombre de pont partant de l'île aux coordonnées (x,y)
+*)
 let nombre_de_pont sol pair =
   let aux dir =
     let bon_sens = function
@@ -221,6 +251,12 @@ let est_complet = fun c -> fun sol ->
   else if importance = totalPont then true
   else raise TooMuchBridges
 
+(**
+	val pont_restants : coordinate -> cell list list -> int
+
+	pont_restants (Coordinate (x,y)) l on considèrera que l'element aux coordonnées (x,y) est de type Island,
+	la fonction retourne le nombre de pont qui manquent pour compléter l'île aux coordonnées (x,y)
+*)
 let ponts_restants = fun c -> fun sol ->
   let cell = getCell sol (fstcoord c, sndcoord c) in
   let importance =
@@ -230,6 +266,11 @@ let ponts_restants = fun c -> fun sol ->
   let total_ponts = nombre_de_pont sol (pair_from_coord c) in
   importance - total_ponts
   
+(**
+	val get_voisins_pont : cell list list -> int * int -> (int * int) list
+
+	get_voisins_pont sol (x,y) on considèrera que l'element aux coordonnées (x,y) est de type Island, retourne une liste de pair comprenant tout les voisins de l'île relié par des ponts
+*)
 let get_voisins_pont sol pair =
   let bon_sens = function
     | Bridge {isVertical = true; isDoubled = _ },(Haut|Bas) -> true
@@ -254,6 +295,12 @@ let get_voisins_pont sol pair =
   (get_first_island (next_pair Droite pair) Droite) @
   (get_first_island (next_pair Bas pair) Bas)
 
+(**
+	val parcours_largeur : cell list list -> int * int -> (int * int) list
+
+	parcours_largeur sol (x,y) lance un parcours en largeur sur la cell aux coordonnées (x,y), les voisins de chaque noeud atteint sont obtenus avec la fonction "get_voisins_pont",
+	retourne la liste des coordonnées des cell atteintes.
+*)
 let parcours_largeur sol pair =
   let rec aux pair file res =
     let voisins_pont = get_voisins_pont sol pair in
@@ -265,7 +312,12 @@ let parcours_largeur sol pair =
   in aux pair [pair] [pair]
 
 
-(* parcours largeur qui retourne une liste des sommets par lesquels il est passé *)
+(**
+	val parcours_largeur : cell list list -> int * int -> (int * int) list
+
+	parcours_largeur sol (x,y) lance un parcours en largeur sur la cell aux coordonnées (x,y), les voisins de chaque noeud atteint sont obtenus avec la fonction "get_voisins_pont",
+	retourne la liste des coordonnées des cell atteintes.
+*)
 let parcours_largeur_pont sol pair =
   let rec aux pair file res =
     let voisins_pont = get_voisins_pont sol pair in
@@ -276,9 +328,20 @@ let parcours_largeur_pont sol pair =
     | h::t -> aux h (file') (res@voisins_non_atteint)
   in aux pair [pair] [pair]
 
-(* la liste de paire donnée en paramètre doit être issue d'un parcours en largeur*)    
+(**
+	val test_est_composante_connexe : (int * int) list -> cell list list -> bool 
+
+	test_est_composante_connexe liste sol, "liste" doit être une liste issu de la résultante de la fonction parcours_largeur_pont, si toutes les cell correspondant aux coordonnées de "liste" sont complètes (ref: est_complet) alors nous avons affaire à une composante connexe c'est à dire un graphe auquelle on ne pourra plus ajouté d'arc dans ce contexte présent 
+	retourne true si c'est une composante connexe
+*)   
 let test_est_composante_connexe liste sol = (List.for_all (fun x -> est_complet (coord_from_pair x)  sol) liste)
 
+(**
+	val jeu_est_fini : cell list list -> puzzle -> bool
+
+	jeu_est_fini sol puz, un jeu ici sera le fait de donner une solution terminée, si un jeu est fini alors nous avons ces conditions satisfaites : toutes les cell de sol sont complètes et appartiennent toutes au même graphe
+	retourn true si le jeu est fini.
+*)
 let jeu_est_fini sol puz =
   let puz' = list_of_puzzle puz in 
   let liste_finale = 
@@ -286,6 +349,12 @@ let jeu_est_fini sol puz =
     parcours_largeur_pont sol first_pair in
   ((List.length liste_finale) = (List.length puz')) && (test_est_composante_connexe liste_finale sol)
 
+(**
+	val get_voisins : cell list list -> int * int -> puzzle -> (int * int) list
+
+	get_voisins sol (x,y) puz, un voisin ici est caractèrisé par une cell (appelons la cellVoisine) que la cell aux coordonnées (x,y) (appelons la cellInitiale) peut potentiellement mettre un pont entre elles, c'est à dire que cellVoisine ne doit pas être complète, elle ne doit pas créer plusieurs composantes connexe si on rajoute un pont à l'avenir entre les deux cell (cellVoisine et cellInitiale) et il ne doit pas y avoir de pont entre les deux cell orienté de façon à ce qu'il ne soit pas empruntable.
+	retourne la liste de tous les voisins respectant ces contraintes.
+*)
 let get_voisins sol pair puz =
   let bon_sens_pas_double = function
     | Bridge {isVertical = true; isDoubled = false },(Haut|Bas) -> true
@@ -338,6 +407,12 @@ let dir_to_coord = fun c1 -> fun c2 ->
         if i1 < i2 then Bas else Haut
     else raise UnlinkedCoords;;
 
+(**
+	val fill : int * int -> cell list list -> puzzle -> cell list list
+
+	fill (x,y) sol puz, sans vérification au préalabe cette fonction applique une seule fois "dessinerPonts" entre la cell aux coordonnées (x,y) et chacun de ses voisin,
+	retourne une cell list list avec les modifications.
+*)
 let fill pair sol puz =
   let lv = get_voisins sol pair puz in
     let rec aux l res =
@@ -347,6 +422,12 @@ let fill pair sol puz =
                aux t (dessinerPonts res pair dir) 
     in aux lv sol 
        
+(**
+	val nfill : int * int -> cell list list -> puzzle -> cell list list
+
+	nfill (x,y) sol puz, cette fonction appliquera la fonction fill tant que le nombre de pont restant de la cell aux coordonnées (x,y) n'est pas égale à Zéro
+	retourne une cell list list avec les modifications.
+*)
 let nfill pair sol puz =
   let rec aux pair res =
     let nbpr = (ponts_restants (coord_from_pair pair) res ) in
@@ -354,6 +435,12 @@ let nfill pair sol puz =
     else aux pair (fill pair res puz) in
   aux pair sol
     
+(**
+	val get_voisins : cell list list -> int * int -> puzzle -> (int * int) list
+
+	get_voisins sol (x,y) puz, un voisin ici est caractèrisé par une cell (appelons la cellVoisine) que la cell aux coordonnées (x,y) (appelons la cellInitiale) peut potentiellement mettre un pont entre elles, c'est à dire que cellVoisine ne doit pas être complète, elle ne doit pas créer plusieurs composantes connexe si on rajoute un pont à l'avenir entre les deux cell (cellVoisine et cellInitiale) et il ne doit pas y avoir de pont entre les deux cell orienté de façon à ce qu'il ne soit pas empruntable.
+	retourne la liste de tous les voisins respectant ces contraintes.
+*)
 let get_voisins sol pair puz =
   
   let bon_sens_pas_double =
@@ -389,6 +476,12 @@ let get_voisins sol pair puz =
       (get_first_island (next_pair Droite pair) Droite)@
   (get_first_island (next_pair Bas pair) Bas)
 
+(**
+	val get_voisin_test : cell list list -> int * int -> puzzle -> (int * int) list 
+
+	get_voisin_test sol (x,y) puz, cette fonction est du même acabit que get_voisin et get_voisin, bien qu'elle s'apparente à un mix des deux (on récupère les voisins avec et sans pont entre) il y a une autre subtilité, si une cell est complète on la considérera comme une cell voisine si elle appartient à la même composante que la cell aux coordonnées (x,y),
+	retourne la liste de toutes les cell respectants les contraintes ci dessus
+*)
 let get_voisins_test sol pair puz =
   let vp = get_voisins_pont sol pair in
   let rec get_first_island pair' dir =
@@ -422,6 +515,12 @@ let get_voisins_test sol pair puz =
   (get_first_island (next_pair Droite pair) Droite) @
   (get_first_island (next_pair Bas pair) Bas)
 
+(**
+	val pont_max : int * int -> int * int -> cell list list -> puzzle -> int
+
+	pont_max (x,y) (x',y') sol puz on considèrera que les éléments aux coordonnées (x,y) et (x',y') sont de type Island,
+	la fonction va evaluer le nombre de pont que l'on peut mettre entre les Islands de coordonnées (x,y) et (x',y') sans créer plusieurs composantes connexes 
+*)
 let pont_max pair1 pair2 sol puz =
   let voisin_pair1 = get_voisins sol pair1 puz in
   let sont_voisins = List.mem pair2 voisin_pair1 in
@@ -437,6 +536,12 @@ let pont_max pair1 pair2 sol puz =
         else aux p1 p2 (pontdess) (res +1) 
     in aux pair1 pair2 sol 0
       
+(**
+	val somme_pont_max : int * int -> cell list list -> puzzle -> int
+
+	somme_pont_max (x,y) sol puz, 
+	retourne l'addition des résultantes de la fonction pont_max effectuée sur chacun des voisins de la cell aux coordonnées (x,y)
+*)
 let somme_pont_max pair sol puz =
   let lv = get_voisins sol pair puz in
   let rec aux l res =
